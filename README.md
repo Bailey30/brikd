@@ -87,7 +87,7 @@ make makemigrations-common
 
 
 
-## ⚙️ Useful `make` Commands
+## Useful `make` Commands
 
 | Task                         | Command                |
 |------------------------------|------------------------|
@@ -107,6 +107,5 @@ make makemigrations-common
 - `models.py` – ORM schema (database layer)
 - `services.py` – business logic (calls models and other logic)
 
----
 
 

@@ -109,8 +109,4 @@ make makemigrations-common
 
 ---
 
-## Frontend (Next.js)
 
-- Located in the `frontend/` folder
-- Uses `next dev` for hot reloading during development
-- To enable reliable hot reloading on some systems, the container uses:

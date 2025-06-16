@@ -17,7 +17,7 @@ export default function Home() {
           <li>
             tar by editing <code>src/app/page.tsx</code>.
           </li>
-          <li>Save and see your chanfdsfdsfsdges instantly.</li>
+          <li>Save and see your changes instantly.</li>
         </ol>
 
         <div className={styles.ctas}>

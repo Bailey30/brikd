@@ -1,0 +1,47 @@
+version: "3.12.4"
+
+services:
+  db:
+    image: postgres:14.1
+    environment:
+      - POSTGRES_DB=brikd
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+
+
+  backend:
+    build:
+      context: ./api
+      dockerfile: local.Dockerfile
+    command: pipenv run python manage.py runserver 0.0.0.0:8000
+    environment:
+      - DATABASE_URL=postgres://postgres:postgres@db:5432/brikd
+    volumes:
+      - ./api:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    restart: on-failure
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: local.Dockerfile
+    ports:
+      - 3000:3000
+    env_file: 
+       - ./.env.development
+    command: npm run dev 
+    volumes:
+      - ./frontend:/app
+    working_dir: /app
+    environment:
+      - NODE_ENV=development
+      - WATCHPACK_POLLING=true
+    tty: true
+    stdin_open: true
+
+
+
+# docker-compose exec web python manage.py migrate

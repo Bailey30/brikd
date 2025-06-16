@@ -1,11 +1,6 @@
 import { AnyUser, CompanyRegister } from "@/types/auth";
 import { apiSlice } from "../api";
 
-// Taken from RTK Query docs:
-// https://redux-toolkit.js.org/rtk-query/usage/customizing-queries#automatic-re-authorization-by-extending-fetchbasequery
-// and project with working example:
-// https://github.com/linkedweb/full-auth
-
 const authApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getUser: builder.query<AnyUser, void>({

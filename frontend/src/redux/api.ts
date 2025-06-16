@@ -8,6 +8,11 @@ import type {
 import { setAuth, logout } from "./features/authSlice";
 import { Mutex } from "async-mutex";
 
+// Taken from RTK Query docs:
+// https://redux-toolkit.js.org/rtk-query/usage/customizing-queries#automatic-re-authorization-by-extending-fetchbasequery
+// and project with working example:
+// https://github.com/linkedweb/full-auth
+
 // mutex will prevent multiple refresh calls at the same time if there are multiple 401 errors
 // create a new mutex
 const mutex = new Mutex();

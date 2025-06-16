@@ -1,4 +1,3 @@
-# Full Stack Project: Django + PostgreSQL + Next.js (Docker + Pipenv)
 
 This project uses Docker to run:
 - A **Django** backend with Pipenv

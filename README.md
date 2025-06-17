@@ -32,13 +32,13 @@ make migrate
 
 ## Development Server Commands
 
-Start only the backend (useful for debugging):
+Start only the backend:
 
 ```bash
 make backend
 ```
 
-Start only the frontend (if you've built it):
+Start only the frontend:
 
 ```bash
 make frontend

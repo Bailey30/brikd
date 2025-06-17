@@ -1,8 +1,6 @@
-from rest_framework.response import Response
-from rest_framework.test import APITestCase
 from django.urls import reverse
 from django.test import TestCase
-from rest_framework.views import status
+from common.models import BaseUser
 from common.test_utils import res_type
 from companies.models import Company
 from companies.tests.utils import test_credentials
@@ -16,13 +14,15 @@ class TestAuthViews(TestCase):
         Get user data to check if token is in request cookies.
         """
 
-        Company.objects.create_user(
+        profile = BaseUser.objects.create_user(
             test_credentials["email"],
             test_credentials["password"],
             is_active=True,
             is_admin=False,
-            name=test_credentials["name"],
         )
+
+        # 2. Create the Company that links to this user
+        Company.objects.create(name=test_credentials["name"], profile=profile)
 
         res = res_type(
             self.client.post(reverse("auth:token_obtain_pair"), test_credentials)
@@ -43,13 +43,15 @@ class TestAuthViews(TestCase):
         Try to get user data to check if token is in request cookies.
         """
 
-        Company.objects.create_user(
+        profile = BaseUser.objects.create_user(
             test_credentials["email"],
             test_credentials["password"],
             is_active=True,
             is_admin=False,
-            name=test_credentials["name"],
         )
+
+        # 2. Create the Company that links to this user
+        Company.objects.create(name=test_credentials["name"], profile=profile)
 
         res = res_type(
             self.client.post(reverse("auth:token_obtain_pair"), test_credentials)

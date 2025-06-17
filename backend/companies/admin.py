@@ -16,5 +16,20 @@ class CustomCompanyAdmin(admin.ModelAdmin):
         "updated_at",
     ]
 
+    def email(self, obj):
+        return obj.profile.email
+
+    def is_admin(self, obj):
+        return obj.profile.is_admin
+
+    def is_active(self, obj):
+        return obj.profile.is_active
+
+    def created_at(self, obj):
+        return obj.profile.created_at
+
+    def updated_at(self, obj):
+        return obj.profile.updated_at
+
 
 admin.site.register(Company, CustomCompanyAdmin)

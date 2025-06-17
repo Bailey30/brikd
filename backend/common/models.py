@@ -2,11 +2,15 @@ from django.contrib.auth.models import AbstractBaseUser
 from django.contrib.auth.models import BaseUserManager as BUM
 from django.db import models
 from django.utils import timezone
+from rest_framework import serializers
 
 
 class BaseModel(models.Model):
     created_at = models.DateTimeField(db_index=True, default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        abstract = True
 
 
 class BaseUserManager(BUM):
@@ -47,7 +51,7 @@ class BaseUserManager(BUM):
         return user
 
 
-class BaseUser(BaseModel, AbstractBaseUser):
+class BaseUser(AbstractBaseUser, BaseModel):
     email = models.EmailField(
         verbose_name="email address",
         max_length=255,
@@ -57,6 +61,7 @@ class BaseUser(BaseModel, AbstractBaseUser):
     is_admin = models.BooleanField(default=False)
 
     USERNAME_FIELD = "email"
+    from typing import TYPE_CHECKING
 
     objects = BaseUserManager()
 
@@ -76,8 +81,14 @@ class BaseUser(BaseModel, AbstractBaseUser):
         # Simplest possible answer: Yes, always
         return True
 
-    def id(self):
-        return self.id
+    # def id(self):
+    #     return self.id
 
     # def __str__(self):
     #     return self.email
+
+
+class BaseUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BaseUser
+        fields = ["email", "is_active", "is_admin"]

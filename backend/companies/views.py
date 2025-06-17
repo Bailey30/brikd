@@ -3,16 +3,20 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
 
+from common.models import BaseUserSerializer
 from companies.models import Company
 from companies.services import CompanyService
 from django.http import Http404
 
 
 class companyDetailApi(APIView):
-    class OutputSerializer(serializers.Serializer):
-        id = serializers.IntegerField()
-        email = serializers.CharField()
-        name = serializers.CharField()
+    class OutputSerializer(serializers.ModelSerializer):
+        profile = BaseUserSerializer()
+
+        class Meta:
+            model = Company
+            fields = ["id", "name", "profile"]
+            depth = 1
 
     def get(self, request, user_id):
         user = CompanyService().get(user_id)
@@ -29,14 +33,17 @@ class CompanyListApi(APIView):
     permission_classes = [AllowAny]
 
     class OutputSerializer(serializers.ModelSerializer):
+        profile = BaseUserSerializer()
+
         class Meta:
             model = Company
-            fields = ["id", "email", "name"]
+            fields = ["id", "name", "profile"]
+            depth = 1
 
     def get(self, request) -> Response:
-        print("ALLOW ANY")
         companys = CompanyService().list()
         serializer = self.OutputSerializer(companys, many=True)
+        print("COMPANIES:", serializer.data)
         return Response(serializer.data)
 
 

@@ -12,7 +12,7 @@ class CompanyServiceTests(TestCase):
     def test_company_create(self):
         company = create_test_company()
         self.assertEqual(1, Company.objects.count())
-        self.assertEqual("test@email.com", company.email)
+        self.assertEqual("test@email.com", company.profile.email)
         self.assertEqual("name", company.name)
 
     def test_company_get(self):
@@ -20,4 +20,4 @@ class CompanyServiceTests(TestCase):
 
         get_companies = CompanyService().get(company.id)
 
-        self.assertEqual("test@email.com", get_companies.email)
+        self.assertEqual("test@email.com", get_companies.profile.email)

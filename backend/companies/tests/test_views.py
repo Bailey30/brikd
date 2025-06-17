@@ -29,5 +29,5 @@ class TestCompanyViews(APITestCase):
         )
 
         self.assertEqual(status.HTTP_201_CREATED, res.status_code)
-        self.assertEqual(company["email"], res.data["user"]["email"])
+        self.assertEqual(company["email"], res.data["user"]["profile"]["email"])
         self.assertEqual(company["name"], res.data["user"]["name"])

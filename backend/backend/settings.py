@@ -48,6 +48,8 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     "companies",
     "common",
+    "sites",
+    "jobs",
     "rest_framework",
     "django.contrib.admin",
     "django.contrib.auth",

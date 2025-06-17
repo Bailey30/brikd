@@ -15,7 +15,7 @@ frontend:
 	docker-compose up frontend --build
 
 backend:
-	docker-compose up backend --build
+	docker-compose up backend 
 
 migrate:
 	docker-compose exec backend pipenv run python manage.py migrate

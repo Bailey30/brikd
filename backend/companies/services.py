@@ -12,7 +12,7 @@ User = get_user_model()
 class CompanyService:
     def create(self, email: str, password: str, name: str) -> Company:
         # 1. Create the BaseUser
-        user = User.objects.create_user(
+        user = User.objects.create_user(  # pyright: ignore
             email=email,
             password=password,
             is_active=True,

@@ -9,11 +9,11 @@ from companies.services import CompanyService
 from django.http import Http404
 
 
-class companyDetailApi(APIView):
+class CompanyDetailView(APIView):
     class OutputSerializer(serializers.ModelSerializer):
         profile = BaseUserSerializer()
 
-        class Meta:
+        class Meta:  # pyright: ignore
             model = Company
             fields = ["id", "name", "profile"]
             depth = 1
@@ -29,13 +29,13 @@ class companyDetailApi(APIView):
         return Response(data)
 
 
-class CompanyListApi(APIView):
+class CompanyListView(APIView):
     permission_classes = [AllowAny]
 
     class OutputSerializer(serializers.ModelSerializer):
         profile = BaseUserSerializer()
 
-        class Meta:
+        class Meta:  # pyright: ignore
             model = Company
             fields = ["id", "name", "profile"]
             depth = 1
@@ -47,7 +47,7 @@ class CompanyListApi(APIView):
         return Response(serializer.data)
 
 
-class CompanyCreateApi(APIView):
+class CompanyCreateView(APIView):
     class InputSerializer(serializers.Serializer):
         email = serializers.EmailField()
         password = serializers.CharField()
@@ -60,7 +60,7 @@ class CompanyCreateApi(APIView):
         company = CompanyService().create(**serializer.validated_data)
 
         data = {
-            "user": companyDetailApi.OutputSerializer(company).data,
+            "user": CompanyDetailView.OutputSerializer(company).data,
         }
 
         # login(request, company)

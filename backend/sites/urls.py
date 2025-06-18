@@ -1,8 +1,11 @@
 from django.urls import path
 
-from companies.views import CreateSiteApi
+from sites.views import CreateSiteView, UpdateSiteView, SiteDetailView, DeleteSiteView
 
 app_name = "sites"
 urlpatterns = [
-    path("create/", CreateSiteApi.as_view(), name="create"),
+    path("create/", CreateSiteView.as_view(), name="create"),
+    path("<int:id>", SiteDetailView.as_view(), name="get"),
+    path("<int:id>/update", UpdateSiteView.as_view(), name="update"),
+    path("<int:id>/delete", DeleteSiteView.as_view(), name="delete"),
 ]

@@ -11,6 +11,9 @@ def res_type(request):
 def create_test_company(
     email="test@email.com", password="password", name="name"
 ) -> Company:
+    """
+    Creates a BaseUser and Company object in the database.
+    """
     company = CompanyService().create(email, password, name)
     return company
 
@@ -21,4 +24,4 @@ test_company_credentials = {
     "name": "org",
 }
 
-test_site_credentials = {"name": "test_site", "postcode": "NW2555"}
+test_site_credentials = {"name": "test_site", "postcode": "CR0 3RL"}

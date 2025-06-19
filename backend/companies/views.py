@@ -24,9 +24,7 @@ class CompanyDetailView(APIView):
         if user is None:
             raise Http404
 
-        data = self.OutputSerializer(user).data
-
-        return Response(data)
+        return Response(data=self.OutputSerializer(user).data)
 
 
 class CompanyListView(APIView):
@@ -41,10 +39,10 @@ class CompanyListView(APIView):
             depth = 1
 
     def get(self, request) -> Response:
-        companys = CompanyService().list()
-        serializer = self.OutputSerializer(companys, many=True)
-        print("COMPANIES:", serializer.data)
-        return Response(serializer.data)
+        companies = CompanyService().list()
+        serializer = self.OutputSerializer(companies, many=True)
+
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
 
 
 class CompanyCreateView(APIView):
@@ -59,9 +57,9 @@ class CompanyCreateView(APIView):
 
         company = CompanyService().create(**serializer.validated_data)
 
-        data = {
-            "user": CompanyDetailView.OutputSerializer(company).data,
-        }
-
-        # login(request, company)
-        return Response(data, status.HTTP_201_CREATED)
+        return Response(
+            data={
+                "user": CompanyDetailView.OutputSerializer(company).data,
+            },
+            status=status.HTTP_201_CREATED,
+        )

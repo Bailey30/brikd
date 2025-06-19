@@ -46,6 +46,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    "drf_standardized_errors",
     "companies",
     "common",
     "sites",
@@ -93,7 +94,8 @@ REST_FRAMEWORK = {
         # "authentication.auth.CustomJWTAuthentication",
         # "rest_framework_simplejwt.authentication.JWTAuthentication",
         # "rest_framework.authentication.TokenAuthentication",  # or JWT
-    ]
+    ],
+    "EXCEPTION_HANDLER": "drf_standardized_errors.handler.exception_handler",
 }
 
 

@@ -1,10 +1,11 @@
 import re
-from rest_framework.views import APIView
 from rest_framework import serializers
 from rest_framework.response import Response
 from rest_framework import status
 from django.http import Http404, request
 from django.core.validators import RegexValidator
+from rest_framework.views import APIView
+from authentication.views import BaseAuthenticatedView
 from companies.services import CompanyService
 from companies.views import CompanyDetailView
 from sites.services import SiteService
@@ -13,7 +14,7 @@ from rest_framework.permissions import IsAuthenticated
 from authentication.auth import CustomJWTAuthentication
 
 
-class SiteDetailView(APIView):
+class SiteDetailView(BaseAuthenticatedView):
     class OutputSerializer(serializers.ModelSerializer):
         company = CompanyDetailView().OutputSerializer()
 
@@ -22,15 +23,25 @@ class SiteDetailView(APIView):
             fields = ["id", "name", "postcode", "company"]
             depth = 1
 
-    def get(self, request, user_id):
-        site = SiteService().get(user_id)
+    def get(self, _, id):
+        site = SiteService().get(id)
 
         if site is None:
             raise Http404
 
-        data = self.OutputSerializer(site).data
+        return Response(
+            data=self.OutputSerializer(site).data, status=status.HTTP_200_OK
+        )
 
-        return Response(data)
+
+class ListSiteView(APIView):
+    def get(self, _):
+        sites = SiteService().list()
+
+        return Response(
+            data={"sites": SiteDetailView.OutputSerializer(sites, many=True).data},
+            status=status.HTTP_200_OK,
+        )
 
 
 def uk_postcode_validator(postcode):
@@ -38,7 +49,7 @@ def uk_postcode_validator(postcode):
         raise serializers.ValidationError("Invalid UK postcode.")
 
 
-class CreateSiteView(APIView):
+class CreateSiteView(BaseAuthenticatedView):
     permission_classes = [IsAuthenticated]
     authentication_classes = [CustomJWTAuthentication]
 
@@ -54,16 +65,16 @@ class CreateSiteView(APIView):
 
         company = CompanyService().get(account.id)
         site = SiteService().create(**serializer.validated_data, company=company)
-        print("SITE:", site)
 
-        data = {
-            "site": SiteDetailView.OutputSerializer(site).data,
-        }
+        return Response(
+            data={
+                "site": SiteDetailView.OutputSerializer(site).data,
+            },
+            status=status.HTTP_201_CREATED,
+        )
 
-        return Response(data, status.HTTP_201_CREATED)
 
-
-class UpdateSiteView(APIView):
+class UpdateSiteView(BaseAuthenticatedView):
     permission_classes = [IsAuthenticated]
     authentication_classes = [CustomJWTAuthentication]
 
@@ -74,7 +85,6 @@ class UpdateSiteView(APIView):
         )
 
     def patch(self, request, id) -> Response:
-        print("ARGS:", id)
         serializer = self.InputSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
@@ -85,19 +95,19 @@ class UpdateSiteView(APIView):
 
         updated_site = SiteService().update(site, serializer.validated_data)
 
-        data = {
-            "site": SiteDetailView.OutputSerializer(updated_site).data,
-        }
+        return Response(
+            data={
+                "site": SiteDetailView.OutputSerializer(updated_site).data,
+            },
+            status=status.HTTP_200_OK,
+        )
 
-        return Response(data)
 
-
-class DeleteSiteView(APIView):
+class DeleteSiteView(BaseAuthenticatedView):
     permission_classes = [IsAuthenticated]
     authentication_classes = [CustomJWTAuthentication]
 
-    def post(self, request, id) -> Response:
-        print("ID: ", id)
+    def post(self, _, id) -> Response:
         site = SiteService().get(id)
 
         if site is None:

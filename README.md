@@ -35,13 +35,13 @@ make migrate
 Start only the backend:
 
 ```bash
-make backend
+make back
 ```
 
 Start only the frontend:
 
 ```bash
-make frontend
+make front
 ```
 
 Run the Django server manually:

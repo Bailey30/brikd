@@ -18,7 +18,7 @@ class CompanyDetailView(APIView):
             fields = ["id", "name", "profile"]
             depth = 1
 
-    def get(self, request, user_id):
+    def get(self, _, user_id):
         user = CompanyService().get(user_id)
 
         if user is None:
@@ -38,7 +38,7 @@ class CompanyListView(APIView):
             fields = ["id", "name", "profile"]
             depth = 1
 
-    def get(self, request) -> Response:
+    def get(self, _) -> Response:
         companies = CompanyService().list()
         serializer = self.OutputSerializer(companies, many=True)
 

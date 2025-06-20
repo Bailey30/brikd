@@ -10,6 +10,11 @@ from rest_framework.permissions import IsAuthenticated
 from authentication.auth import CustomJWTAuthentication
 
 
+class BaseAuthenticatedView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [CustomJWTAuthentication]
+
+
 class CustomTokenObtainPairView(TokenObtainPairView):
     def post(self, request, *args, **kwargs):
         response = super().post(request, *args, **kwargs)
@@ -50,10 +55,12 @@ class GetLoggedInUser(APIView):
 
     def get(self, request):
         user = request.user
-        data = {
-            "id": user.id,
-            "email": user.email,
-            "is_active": user.is_active,
-            "is_admin": user.is_admin,
-        }
-        return Response(data)
+
+        return Response(
+            data={
+                "id": user.id,
+                "email": user.email,
+                "is_active": user.is_active,
+                "is_admin": user.is_admin,
+            }
+        )

@@ -27,3 +27,7 @@ class Job(BaseModel):
         )
 
         return f"{self.title} - {self.company.name} - {rate}"
+
+    @property
+    def id(self):
+        return self.id

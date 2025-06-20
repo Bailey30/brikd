@@ -12,6 +12,7 @@ django-environ = "*"
 djangorestframework-simplejwt = "*"
 djangorestframework-stubs = "*"
 django-stubs = {extras = ["compatible-mypy"], version = "*"}
+drf-standardized-errors = "*"
 
 [dev-packages]
 

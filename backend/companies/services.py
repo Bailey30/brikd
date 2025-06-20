@@ -24,7 +24,7 @@ class CompanyService:
 
         return company
 
-    def get(self, id: int) -> Company:
+    def get(self, id: str) -> Company:
         company = Company.objects.get(id=id)
         return company
 

@@ -21,7 +21,7 @@ services:
       dockerfile: local.Dockerfile
     command: pipenv run python manage.py runserver 0.0.0.0:8000
     environment:
-      - DATABASE_URL=postgres://postgres:postgres@db:5432/brikd
+      - DATABASE_URL=postgis://postgres:postgres@db:5432/brikd
     volumes:
       - ./backend:/app
     ports:

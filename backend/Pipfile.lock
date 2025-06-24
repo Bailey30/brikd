@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "b77ab14c04e7d1eacd4a175046e743831f5fa93a1bd5ef57817df22fef504049"
+            "sha256": "26de194a2792cfd7c8e0432b3a71e2e26c84ce2afa60da602343100531549443"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -275,6 +275,12 @@
             "markers": "python_version >= '3.8'",
             "version": "==1.1.0"
         },
+        "postcode.io": {
+            "hashes": [
+                "sha256:b1bc623cfa9c5c0a7d9ec279790012cb412ac760d4b602e035491561110ec99c"
+            ],
+            "version": "==0.1.1"
+        },
         "psycopg2": {
             "hashes": [
                 "sha256:0435034157049f6846e95103bd8f5a668788dd913a7c30162ca9503fdf542cb4",
@@ -350,11 +356,11 @@
         },
         "urllib3": {
             "hashes": [
-                "sha256:414bc6535b787febd7567804cc015fee39daab8ad86268f1310a9250697de466",
-                "sha256:4e16665048960a0900c702d4a66415956a584919c03361cac9f1df5c5dd7e813"
+                "sha256:3fc47733c7e419d4bc3f6b3dc2b4f890bb743906a30d56ba4a5bfa4bbff92760",
+                "sha256:e6b01673c0fa6a13e374b50871808eb3bf7046c4b125b216f6bf1cc604cff0dc"
             ],
             "markers": "python_version >= '3.9'",
-            "version": "==2.4.0"
+            "version": "==2.5.0"
         }
     },
     "develop": {}

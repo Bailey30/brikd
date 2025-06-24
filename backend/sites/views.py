@@ -20,7 +20,7 @@ class SiteDetailView(BaseAuthenticatedView):
 
         class Meta:  # pyright: ignore
             model = Site
-            fields = ["id", "name", "postcode", "company"]
+            fields = ["id", "name", "postcode", "company", "location"]
             depth = 1
 
     def get(self, _, id):

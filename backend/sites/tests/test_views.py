@@ -20,8 +20,12 @@ class TestSiteViews(APITestCase):
         res = self.client.post(
             reverse("sites:create"), test_site_credentials, format="json"
         )
+
+        print("Site:", res.data["site"])
+
         self.assertEqual(status.HTTP_201_CREATED, res.status_code)
         self.assertEqual(test_site_credentials["name"], res.data["site"]["name"])
+        self.assertIsNotNone(res.data["site"]["location"])
 
     def test_cannot_create_site_when_unauthenticated(self):
         self.client.post(reverse("auth:logout"))

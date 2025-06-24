@@ -16,6 +16,10 @@ COPY Pipfile Pipfile.lock /app/
 # Install dependencies via pipenv
 RUN pipenv install --deploy --ignore-pipfile
 
+RUN apt-get update && apt-get install -y \
+    binutils libproj-dev gdal-bin
+
+
 # Copy the rest of the code
 COPY . /app/
 

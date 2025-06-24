@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "7ae098308ae115e6d59d1c4c1f641d325defd8ef6daca2f3c2dcaa6dfee207bf"
+            "sha256": "26de194a2792cfd7c8e0432b3a71e2e26c84ce2afa60da602343100531549443"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -212,6 +212,15 @@
             "markers": "python_version >= '3.8'",
             "version": "==0.15.0"
         },
+        "geojson": {
+            "hashes": [
+                "sha256:69d14156469e13c79479672eafae7b37e2dcd19bdfd77b53f74fa8fe29910b52",
+                "sha256:b860baba1e8c6f71f8f5f6e3949a694daccf40820fa8f138b3f712bd85804903"
+            ],
+            "index": "pypi",
+            "markers": "python_version >= '3.7'",
+            "version": "==3.2.0"
+        },
         "idna": {
             "hashes": [
                 "sha256:12f65c9b470abda6dc35cf8e63cc574b1c52b11df2c86030af0ac09b01b13ea9",
@@ -265,6 +274,12 @@
             ],
             "markers": "python_version >= '3.8'",
             "version": "==1.1.0"
+        },
+        "postcode.io": {
+            "hashes": [
+                "sha256:b1bc623cfa9c5c0a7d9ec279790012cb412ac760d4b602e035491561110ec99c"
+            ],
+            "version": "==0.1.1"
         },
         "psycopg2": {
             "hashes": [
@@ -341,11 +356,11 @@
         },
         "urllib3": {
             "hashes": [
-                "sha256:414bc6535b787febd7567804cc015fee39daab8ad86268f1310a9250697de466",
-                "sha256:4e16665048960a0900c702d4a66415956a584919c03361cac9f1df5c5dd7e813"
+                "sha256:3fc47733c7e419d4bc3f6b3dc2b4f890bb743906a30d56ba4a5bfa4bbff92760",
+                "sha256:e6b01673c0fa6a13e374b50871808eb3bf7046c4b125b216f6bf1cc604cff0dc"
             ],
             "markers": "python_version >= '3.9'",
-            "version": "==2.4.0"
+            "version": "==2.5.0"
         }
     },
     "develop": {}

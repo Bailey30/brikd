@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     "sites",
     "jobs",
     "rest_framework",
+    "django.contrib.gis",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -118,6 +119,7 @@ SIMPLE_JWT = {
 
 DATABASES = {
     "default": {
+        "ENGINE": "django.contrib.gis.db.backends.postgis",
         **env.db("DATABASE_URL"),
         # "USER": "postgres",
         # "TEST": {"NAME": "test_db"},

@@ -36,6 +36,7 @@ class TestJobViews(APITestCase):
 
         self.assertEqual(status.HTTP_200_OK, res.status_code)
         self.assertEqual(res.data["job"]["id"], created_job["id"])
+        self.assertIn("distance", created_job)
 
     def test_should_create_job(self):
         company = self.company
@@ -91,3 +92,21 @@ class TestJobViews(APITestCase):
 
         self.assertEqual(status.HTTP_204_NO_CONTENT, res.status_code)
         self.assertEqual(0, Job.objects.count())
+
+    def test_should_get_jobs_within_radius(self):
+        company = self.company
+        site_1 = create_test_site(company=company)
+        site_2 = create_test_site(company=company, postcode="M15 5Ab")
+
+        job_1 = {**test_job_details, "site_id": site_1.id, "company_id": company.id}
+        job_2 = {**test_job_details, "site_id": site_2.id, "company_id": company.id}
+
+        self.client.post(reverse("jobs:create"), job_1, format="json")
+        self.client.post(reverse("jobs:create"), job_2, format="json")
+
+        res = self.client.get(
+            reverse("jobs:filter", query=[("postcode", "M146UF"), ("radius", 10)])
+        )
+
+        self.assertEqual(status.HTTP_200_OK, res.status_code)
+        self.assertEqual(1, len(res.data["jobs"]))

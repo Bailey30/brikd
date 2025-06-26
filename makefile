@@ -30,7 +30,7 @@ createsuperuser:
 	docker-compose exec backend pipenv run python manage.py createsuperuser
 
 testbackend:
-	docker-compose exec backend pipenv run python manage.py test
+	docker-compose exec backend pipenv run python manage.py test ${test}
 
 shell: 
 	docker-compose exec backend pipenv run python manage.py shell

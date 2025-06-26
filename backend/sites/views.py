@@ -1,4 +1,5 @@
 import re
+from pprint import pprint
 from rest_framework import serializers
 from rest_framework.response import Response
 from rest_framework import status
@@ -20,11 +21,20 @@ class SiteDetailView(BaseAuthenticatedView):
 
         class Meta:  # pyright: ignore
             model = Site
-            fields = ["id", "name", "postcode", "company", "location"]
+            fields = ["id", "name", "postcode", "company", "coordinates"]
             depth = 1
+
+        def to_representation(self, model):  # pyright: ignore
+            values = super().to_representation(model)
+            values["coordinates"] = {
+                "longitude": model.coordinates[0],
+                "latitude": model.coordinates[1],
+            }
+            return values
 
     def get(self, _, id):
         site = SiteService().get(id)
+        print("site:", site.coordinates[0])
 
         if site is None:
             raise Http404

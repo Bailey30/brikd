@@ -25,7 +25,6 @@ export default function Home() {
           job
         </button>
       </main>
-      <footer></footer>
     </div>
   );
 }

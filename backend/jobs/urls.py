@@ -6,11 +6,14 @@ from jobs.views import (
     UpdateJobView,
     DeleteJobView,
     JobDetailView,
+    FilterJobView,
 )
+
 
 app_name = "jobs"
 urlpatterns = [
     path("", ListJobView.as_view(), name="list"),
+    path("filter/", FilterJobView.as_view(), name="filter"),
     path("create/", CreateJobView.as_view(), name="create"),
     path("<int:id>", JobDetailView.as_view(), name="get"),
     path("<int:id>/update", UpdateJobView.as_view(), name="update"),

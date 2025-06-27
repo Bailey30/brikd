@@ -59,7 +59,7 @@ class CompanyCreateView(APIView):
 
         return Response(
             data={
-                "user": CompanyDetailView.OutputSerializer(company).data,
+                "company": CompanyDetailView.OutputSerializer(company).data,
             },
             status=status.HTTP_201_CREATED,
         )

@@ -1,13 +1,13 @@
 from django.db import models
-
 from common.models import BaseUser
 
-# Create your models here.
 
-
-class Company(models.Model):
+class User(models.Model):
     profile = models.OneToOneField(BaseUser, on_delete=models.CASCADE, primary_key=True)
     name = models.CharField(max_length=255)
+
+    search_postcode = models.CharField(max_length=10)
+    search_location = models.CharField(max_length=255)
 
     @property
     def id(self):

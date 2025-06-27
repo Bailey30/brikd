@@ -21,11 +21,11 @@ class TestSiteViews(APITestCase):
             reverse("sites:create"), test_site_credentials, format="json"
         )
 
-        print("Site:", res.data["site"])
+        # print("Site:", res.data["site"])
 
         self.assertEqual(status.HTTP_201_CREATED, res.status_code)
         self.assertEqual(test_site_credentials["name"], res.data["site"]["name"])
-        self.assertIsNotNone(res.data["site"]["location"])
+        self.assertIsNotNone(res.data["site"]["coordinates"])
 
     def test_cannot_create_site_when_unauthenticated(self):
         self.client.post(reverse("auth:logout"))
@@ -44,6 +44,15 @@ class TestSiteViews(APITestCase):
         site = {"name": "test_site"}
         res = self.client.post(reverse("sites:create"), site, format="json")
         self.assertEqual(status.HTTP_400_BAD_REQUEST, res.status_code)
+
+    def test_should_get_one_site(self):
+        site_1 = test_site_credentials
+        res = self.client.post(reverse("sites:create"), site_1, format="json")
+        site = res.data["site"]
+        print("site:", site)
+
+        res = self.client.get(reverse("sites:get", args=[site["id"]]), format="json")
+        self.assertEqual(status.HTTP_200_OK, res.status_code)
 
     def test_list_sites(self):
         site_1 = {"name": "test_site_1", "postcode": "M14 6UF"}

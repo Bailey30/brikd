@@ -12,7 +12,7 @@ def res_type(request):
 
 
 def create_test_company(
-    email="test@email.com", password="password", name="name"
+    email="company@email.com", password="password", name="name"
 ) -> Company:
     """
     Creates a BaseUser and Company object in the database.
@@ -29,8 +29,15 @@ def create_test_site(name="test_site", postcode="CR0 3RL", company=None) -> Site
     return site
 
 
+test_user_credentials = {
+    "email": "user@email.com",
+    "password": "password",
+    "name": "user",
+    "search_postcode": "M14 6UF",
+}
+
 test_company_credentials = {
-    "email": "test@email.com",
+    "email": "company@email.com",
     "password": "password",
     "name": "org",
 }

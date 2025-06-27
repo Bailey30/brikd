@@ -10,7 +10,7 @@ class Site(BaseModel):
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="sites")
     name = models.CharField(max_length=255)
     postcode = models.CharField(max_length=10)
-    location = geomodels.PointField(geography=True, default=Point(0, 0))
+    coordinates = geomodels.PointField(geography=True, default=Point(0, 0))
 
     def __str__(self):
         return f"id: {self.id} - {self.name} - {self.postcode}"

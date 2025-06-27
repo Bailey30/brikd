@@ -7,13 +7,8 @@ import React from "react";
 import AccountBoxOutlinedIcon from "@mui/icons-material/AccountBoxOutlined";
 import DisplaySettingsOutlinedIcon from "@mui/icons-material/DisplaySettingsOutlined";
 import ManageAccountsOutlinedIcon from "@mui/icons-material/ManageAccountsOutlined";
-import { useRouter } from "next/router";
 
-const ProfilePage = () => {
-  const router = useRouter();
-
-  const handleClick = (pageName) => router.push(pageName);
-
+const SearchPreferencesPage = () => {
   return (
     <Box
       sx={{
@@ -33,7 +28,6 @@ const ProfilePage = () => {
               icon={<AccountBoxOutlinedIcon />}
               title="Profile"
               description="Complete your profile."
-              onClick={() => handleClick("/search-preferences")}
             />
           </ListItem>
           <ListItem sx={{ px: 0, pb: 2.5 }}>
@@ -41,7 +35,6 @@ const ProfilePage = () => {
               icon={<DisplaySettingsOutlinedIcon />}
               title="Profile"
               description="Complete your profile."
-              onClick={() => handleClick("search-preferences")}
             />
           </ListItem>
           <ListItem sx={{ px: 0, pb: 2.5 }}>
@@ -49,7 +42,6 @@ const ProfilePage = () => {
               icon={<ManageAccountsOutlinedIcon />}
               title="Profile"
               description="Complete your profile."
-              onClick={() => handleClick("search-preferences")}
             />
           </ListItem>
         </List>
@@ -70,4 +62,4 @@ const ProfilePage = () => {
   );
 };
 
-export default ProfilePage;
+export default SearchPreferencesPage;

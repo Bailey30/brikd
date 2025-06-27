@@ -14,7 +14,7 @@ import PersonIcon from "@mui/icons-material/Person";
 
 const navItems = [
   { label: "Home", icon: <HomeIcon />, href: "/" },
-  { label: "Jobs", icon: <WorkIcon />, href: "/job-search" },
+  { label: "Jobs", icon: <WorkIcon />, href: "/jobs" },
   { label: "Company", icon: <BusinessIcon />, href: "/company" },
   { label: "Profile", icon: <PersonIcon />, href: "/profile" },
 ];

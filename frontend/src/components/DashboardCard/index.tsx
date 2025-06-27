@@ -1,8 +1,5 @@
-"use client";
-
-import Image from "next/image";
-import styles from "./page.module.css";
-import { useRouter } from "next/navigation";
+import React from "react";
+import { useRouter } from "next/router";
 import {
   Box,
   Grid,
@@ -20,12 +17,92 @@ import {
   TrendingUp,
   ArrowForward,
   Notifications,
-  Bookmark,
-  Work,
 } from "@mui/icons-material";
-import { DashboardCard } from "@/components/DashboardCard";
 
-export default function Home() {
+interface DashboardCardProps {
+  title: string;
+  count: number;
+  icon: React.ReactNode;
+  color: string;
+  description: string;
+  onClick: () => void;
+}
+
+export const DashboardCard: React.FC<DashboardCardProps> = ({
+  title,
+  count,
+  icon,
+  color,
+  description,
+  onClick,
+}) => {
+  return (
+    <Card
+      sx={{
+        height: "160px",
+        cursor: "pointer",
+        transition: "all 0.3s ease",
+        "&:hover": {
+          transform: "translateY(-4px)",
+          boxShadow: 4,
+        },
+        background: `linear-gradient(135deg, ${color}15 0%, ${color}25 100%)`,
+        border: `1px solid ${color}30`,
+      }}
+      onClick={onClick}
+    >
+      <CardContent
+        sx={{ height: "100%", display: "flex", flexDirection: "column", p: 3 }}
+      >
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            mb: 2,
+          }}
+        >
+          <Avatar
+            sx={{
+              backgroundColor: color,
+              width: 48,
+              height: 48,
+            }}
+          >
+            {icon}
+          </Avatar>
+          <IconButton size="small" sx={{ color: "text.secondary" }}>
+            <ArrowForward />
+          </IconButton>
+        </Box>
+
+        <Box sx={{ flex: 1 }}>
+          <Typography
+            variant="h4"
+            sx={{ fontWeight: 700, color: color, mb: 0.5 }}
+          >
+            {count}
+          </Typography>
+          <Typography
+            variant="h6"
+            sx={{ fontWeight: 600, mb: 0.5, color: "text.primary" }}
+          >
+            {title}
+          </Typography>
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            sx={{ fontSize: "0.85rem" }}
+          >
+            {description}
+          </Typography>
+        </Box>
+      </CardContent>
+    </Card>
+  );
+};
+
+const DashboardHomepage: React.FC = () => {
   const router = useRouter();
 
   const handleMessagesClick = () => {
@@ -46,16 +123,6 @@ export default function Home() {
   const handleHighPaidJobsClick = () => {
     console.log("Navigate to high paid jobs");
     router.push("/jobs?filter=highpaid");
-  };
-
-  const handleSavedJobsClick = () => {
-    console.log("Navigate to saved jobs");
-    // router.push('/saved-jobs');
-  };
-
-  const handleApplicationsClick = () => {
-    console.log("Navigate to applications");
-    // router.push('/applications');
   };
 
   return (
@@ -97,7 +164,7 @@ export default function Home() {
       {/* Dashboard Cards */}
       <Box sx={{ p: 3 }}>
         <Grid container spacing={3}>
-          <Grid size={{ xs: 12, sm: 5 }}>
+          <Grid item xs={12} sm={6}>
             <DashboardCard
               title="Messages"
               count={12}
@@ -108,7 +175,7 @@ export default function Home() {
             />
           </Grid>
 
-          <Grid size={{ xs: 12, sm: 5 }}>
+          <Grid item xs={12} sm={6}>
             <DashboardCard
               title="Responses"
               count={5}
@@ -119,7 +186,7 @@ export default function Home() {
             />
           </Grid>
 
-          <Grid size={{ xs: 12, sm: 6 }}>
+          <Grid item xs={12} sm={6}>
             <DashboardCard
               title="Local Jobs"
               count={23}
@@ -130,7 +197,7 @@ export default function Home() {
             />
           </Grid>
 
-          <Grid size={{ xs: 12, sm: 6 }}>
+          <Grid item xs={12} sm={6}>
             <DashboardCard
               title="High Paid Jobs"
               count={8}
@@ -138,28 +205,6 @@ export default function Home() {
               color="#9C27B0"
               description="Jobs over £45,000 salary"
               onClick={handleHighPaidJobsClick}
-            />
-          </Grid>
-
-          <Grid size={{ xs: 12, sm: 6 }}>
-            <DashboardCard
-              title="Saved Jobs"
-              count={15}
-              icon={<Bookmark />}
-              color="#E91E63"
-              description="Your bookmarked positions"
-              onClick={handleSavedJobsClick}
-            />
-          </Grid>
-
-          <Grid size={{ xs: 12, sm: 6 }}>
-            <DashboardCard
-              title="Applications"
-              count={28}
-              icon={<Work />}
-              color="#00BCD4"
-              description="Total applications submitted"
-              onClick={handleApplicationsClick}
             />
           </Grid>
         </Grid>
@@ -279,4 +324,6 @@ export default function Home() {
       </Box>
     </Box>
   );
-}
+};
+
+export default DashboardHomepage;

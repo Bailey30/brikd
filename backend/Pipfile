@@ -12,6 +12,9 @@ django-environ = "*"
 djangorestframework-simplejwt = "*"
 djangorestframework-stubs = "*"
 django-stubs = {extras = ["compatible-mypy"], version = "*"}
+drf-standardized-errors = "*"
+geojson = "*"
+"postcode.io" = "*"
 
 [dev-packages]
 

@@ -1,7 +1,7 @@
 from rest_framework.response import Response
 from rest_framework.test import APITestCase
 from django.urls import reverse
-from rest_framework.views import status
+from rest_framework import status
 from common.test_utils import res_type
 from companies.tests.utils import create_test_company
 

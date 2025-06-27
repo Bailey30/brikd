@@ -9,45 +9,43 @@ from companies.services import CompanyService
 from django.http import Http404
 
 
-class companyDetailApi(APIView):
+class CompanyDetailView(APIView):
     class OutputSerializer(serializers.ModelSerializer):
         profile = BaseUserSerializer()
 
-        class Meta:
+        class Meta:  # pyright: ignore
             model = Company
             fields = ["id", "name", "profile"]
             depth = 1
 
-    def get(self, request, user_id):
+    def get(self, _, user_id):
         user = CompanyService().get(user_id)
 
         if user is None:
             raise Http404
 
-        data = self.OutputSerializer(user).data
-
-        return Response(data)
+        return Response(data=self.OutputSerializer(user).data)
 
 
-class CompanyListApi(APIView):
+class CompanyListView(APIView):
     permission_classes = [AllowAny]
 
     class OutputSerializer(serializers.ModelSerializer):
         profile = BaseUserSerializer()
 
-        class Meta:
+        class Meta:  # pyright: ignore
             model = Company
             fields = ["id", "name", "profile"]
             depth = 1
 
-    def get(self, request) -> Response:
-        companys = CompanyService().list()
-        serializer = self.OutputSerializer(companys, many=True)
-        print("COMPANIES:", serializer.data)
-        return Response(serializer.data)
+    def get(self, _) -> Response:
+        companies = CompanyService().list()
+        serializer = self.OutputSerializer(companies, many=True)
+
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
 
 
-class CompanyCreateApi(APIView):
+class CompanyCreateView(APIView):
     class InputSerializer(serializers.Serializer):
         email = serializers.EmailField()
         password = serializers.CharField()
@@ -59,9 +57,9 @@ class CompanyCreateApi(APIView):
 
         company = CompanyService().create(**serializer.validated_data)
 
-        data = {
-            "user": companyDetailApi.OutputSerializer(company).data,
-        }
-
-        # login(request, company)
-        return Response(data, status.HTTP_201_CREATED)
+        return Response(
+            data={
+                "user": CompanyDetailView.OutputSerializer(company).data,
+            },
+            status=status.HTTP_201_CREATED,
+        )

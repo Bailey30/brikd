@@ -46,11 +46,13 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    "drf_standardized_errors",
     "companies",
     "common",
     "sites",
     "jobs",
     "rest_framework",
+    "django.contrib.gis",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -93,7 +95,8 @@ REST_FRAMEWORK = {
         # "authentication.auth.CustomJWTAuthentication",
         # "rest_framework_simplejwt.authentication.JWTAuthentication",
         # "rest_framework.authentication.TokenAuthentication",  # or JWT
-    ]
+    ],
+    "EXCEPTION_HANDLER": "drf_standardized_errors.handler.exception_handler",
 }
 
 
@@ -116,6 +119,7 @@ SIMPLE_JWT = {
 
 DATABASES = {
     "default": {
+        "ENGINE": "django.contrib.gis.db.backends.postgis",
         **env.db("DATABASE_URL"),
         # "USER": "postgres",
         # "TEST": {"NAME": "test_db"},

@@ -11,11 +11,11 @@ up:
 down:
 	docker-compose down -v
 
-frontend:
+front:
 	docker-compose up frontend --build
 
-backend:
-	docker-compose up backend 
+back:
+	docker-compose up backend --build
 
 migrate:
 	docker-compose exec backend pipenv run python manage.py migrate
@@ -32,3 +32,5 @@ createsuperuser:
 testbackend:
 	docker-compose exec backend pipenv run python manage.py test
 
+shell: 
+	docker-compose exec backend pipenv run python manage.py shell

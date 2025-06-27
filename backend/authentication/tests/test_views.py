@@ -14,7 +14,7 @@ class TestAuthViews(TestCase):
         Get user data to check if token is in request cookies.
         """
 
-        profile = BaseUser.objects.create_user(
+        profile = BaseUser.objects.create_user(  # pyright: ignore
             test_credentials["email"],
             test_credentials["password"],
             is_active=True,
@@ -43,7 +43,7 @@ class TestAuthViews(TestCase):
         Try to get user data to check if token is in request cookies.
         """
 
-        profile = BaseUser.objects.create_user(
+        profile = BaseUser.objects.create_user(  # pyright: ignore
             test_credentials["email"],
             test_credentials["password"],
             is_active=True,

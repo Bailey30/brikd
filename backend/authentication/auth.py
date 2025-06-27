@@ -42,8 +42,8 @@ class CustomJWTAuthentication(JWTAuthentication):
         raw_token = request.COOKIES.get(settings.SIMPLE_JWT["AUTH_COOKIE"])
 
         print("AUTHENTICATING")
-        print("request:", request)
-        print("cookies:", request.COOKIES)
+        # print("request:", request)
+        # print("cookies:", request.COOKIES)
         if raw_token:
             validated_token = self.get_validated_token(raw_token)
             return self.get_user(validated_token), validated_token

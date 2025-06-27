@@ -52,6 +52,7 @@ class BaseUserManager(BUM):
 
 
 class BaseUser(AbstractBaseUser, BaseModel):
+    account_type = models.CharField(max_length=255, default="base")
     email = models.EmailField(
         verbose_name="email address",
         max_length=255,
@@ -61,7 +62,6 @@ class BaseUser(AbstractBaseUser, BaseModel):
     is_admin = models.BooleanField(default=False)
 
     USERNAME_FIELD = "email"
-    from typing import TYPE_CHECKING
 
     objects = BaseUserManager()
 
@@ -81,14 +81,14 @@ class BaseUser(AbstractBaseUser, BaseModel):
         # Simplest possible answer: Yes, always
         return True
 
-    # def id(self):
-    #     return self.id
+    def id(self):
+        return self.id
 
-    # def __str__(self):
-    #     return self.email
+    def __str__(self):
+        return f"id:{self.id}, account_type:{self.account_type}, email:{self.email}"
 
 
 class BaseUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = BaseUser
-        fields = ["email", "is_active", "is_admin"]
+        fields = ["id", "email", "is_active", "is_admin"]

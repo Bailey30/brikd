@@ -42,20 +42,40 @@ class JobDetailView(APIView):
 
 
 class ListJobView(APIView):
-    def get(self, _) -> Response:
-        jobs = JobService().list()
+    class JobOutputSerializer(serializers.ModelSerializer):
+        company = CompanyDetailView().OutputSerializer()
+        site = SiteDetailView().OutputSerializer()
+        distance = serializers.CharField()
+
+        class Meta:  # pyright: ignore
+            model = Job
+            fields = [
+                "id",
+                "title",
+                "description",
+                "hourly_rate",
+                "daily_rate",
+                "company",
+                "site",
+                "distance",
+            ]
+
+    def get(self, request) -> Response:
+        print("list jobs")
+        print("reuquest user", request.user)
+        jobs = JobService().list(request.user)
 
         return Response(
-            data={"jobs": JobOutputSerializer(jobs, many=True).data},
+            data={"jobs": self.JobOutputSerializer(jobs, many=True).data},
             status=status.HTTP_200_OK,
         )
 
 
-class JobFilterView(APIView):
+class FilterJobView(APIView):
     class JobOutputSerializer(serializers.ModelSerializer):
         company = CompanyDetailView().OutputSerializer()
         site = SiteDetailView().OutputSerializer()
-        distance = serializers.IntegerField()
+        distance = serializers.CharField()
 
         class Meta:  # pyright: ignore
             model = Job
@@ -78,7 +98,7 @@ class JobFilterView(APIView):
         jobs = JobService().list_within_radius(params["radius"], coordinates)
 
         return Response(
-            data={"jobs": JobOutputSerializer(jobs, many=True).data},
+            data={"jobs": self.JobOutputSerializer(jobs, many=True).data},
             status=status.HTTP_200_OK,
         )
 

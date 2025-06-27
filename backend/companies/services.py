@@ -6,17 +6,18 @@ from companies.models import Company
 from common.models import BaseUser
 
 
-User = get_user_model()
+BaseUser = get_user_model()
 
 
 class CompanyService:
     def create(self, email: str, password: str, name: str) -> Company:
         # 1. Create the BaseUser
-        user = User.objects.create_user(  # pyright: ignore
+        user = BaseUser.objects.create_user(  # pyright: ignore
             email=email,
             password=password,
             is_active=True,
             is_admin=False,
+            account_type="company",
         )
 
         # 2. Create the Company that links to this user
@@ -25,7 +26,7 @@ class CompanyService:
         return company
 
     def get(self, id: str) -> Company:
-        company = Company.objects.get(id=id)
+        company = Company.objects.get(profile_id=id)
         return company
 
     def list(self) -> QuerySet[Company]:

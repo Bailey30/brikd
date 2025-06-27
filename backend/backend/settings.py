@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     "drf_standardized_errors",
     "companies",
     "common",
+    "users",
     "sites",
     "jobs",
     "rest_framework",

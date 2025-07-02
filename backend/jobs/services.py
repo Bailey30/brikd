@@ -1,7 +1,4 @@
-from django.contrib.gis.geos import Point
 from django.contrib.gis.geos.geometry import GEOSGeometry
-from requests import request
-from rest_framework.exceptions import APIException
 from common.service_utils import update_model
 from common.utils import get_postcode_coordinates
 from companies.services import CompanyService
@@ -10,10 +7,12 @@ from django.contrib.gis.db.models.functions import (
     Distance,
 )  # For DB distance annotation
 from jobs.models import Job
+from common.models import BaseUser
 
 from django.db.models import QuerySet
 
 from sites.services import SiteService
+from users.models import User
 from users.services import UserService
 
 
@@ -48,20 +47,18 @@ class JobService:
         jobs = Job.objects.all()
 
         try:
-            # If the request was made by a jobseeker, annotate the jobs with the distance from their saved location.
+            # If the request was made by a jobseeker, annotate the jobs with
+            # the distance from their saved location.
             # TODO: handle if they saved a location instead of a postcode.
             if (
-                hasattr(request_user, "account_type")
+                isinstance(request_user, BaseUser)
                 and request_user.account_type == "jobseeker"
             ):
-                print("User is jobseeker to annotating with distance")
                 user = UserService().get(request_user.id)
-                print(user.search_postcode)
                 coordinates = get_postcode_coordinates(user.search_postcode)
                 point = self.create_gis_point(coordinates)
 
                 jobs = jobs.annotate(distance=Distance("site__coordinates", point))
-                print("jobs query", jobs.query)
         except Exception as e:
             raise e
 

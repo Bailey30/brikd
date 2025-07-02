@@ -91,4 +91,4 @@ class BaseUser(AbstractBaseUser, BaseModel):
 class BaseUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = BaseUser
-        fields = ["id", "email", "is_active", "is_admin"]
+        fields = ["id", "email", "is_active", "is_admin", "account_type"]

@@ -17,4 +17,4 @@ class TestUserViews(APITestCase):
         self.assertEqual(status.HTTP_201_CREATED, res.status_code)
         self.assertEqual(user["name"], test_user_credentials["name"])
         self.assertEqual(user["profile"]["email"], test_user_credentials["email"])
-        self.assertEqual(user["account_type"], "jobseeker")
+        self.assertEqual(user["profile"]["account_type"], "jobseeker")

@@ -34,6 +34,7 @@ class CreateUserView(APIView):
         serializer = self.InputSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = UserService().create(**serializer.validated_data)
+
         return Response(
             data={
                 "user": UserOutputSerializer(user).data,

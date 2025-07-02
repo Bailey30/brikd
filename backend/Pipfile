@@ -13,8 +13,8 @@ djangorestframework-stubs = "*"
 django-stubs = {extras = ["compatible-mypy"], version = "*"}
 drf-standardized-errors = "*"
 geojson = "*"
-"postcode.io" = "*"
 django = "*"
+factory-boy = "*"
 
 [dev-packages]
 

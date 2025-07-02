@@ -1,3 +1,4 @@
+from pprint import pprint
 from django.http import Http404
 from rest_framework.exceptions import APIException, ValidationError
 from common.utils import get_postcode_coordinates
@@ -45,7 +46,7 @@ class ListJobView(APIView):
     class JobOutputSerializer(serializers.ModelSerializer):
         company = CompanyDetailView().OutputSerializer()
         site = SiteDetailView().OutputSerializer()
-        distance = serializers.CharField()
+        distance = serializers.CharField(required=False)
 
         class Meta:  # pyright: ignore
             model = Job
@@ -61,8 +62,6 @@ class ListJobView(APIView):
             ]
 
     def get(self, request) -> Response:
-        print("list jobs")
-        print("reuquest user", request.user)
         jobs = JobService().list(request.user)
 
         return Response(
@@ -92,7 +91,6 @@ class FilterJobView(APIView):
 
     def get(self, request) -> Response:
         params = request.GET
-        print("query_params:", params)
 
         coordinates = get_postcode_coordinates(params["postcode"])
         jobs = JobService().list_within_radius(params["radius"], coordinates)

@@ -1,7 +1,8 @@
 
 This project uses Docker to run:
 - A **Django** backend with Pipenv
-- A **PostgreSQL** database
+- A **PostGIS** database
+    - PostGIS extends the capabilities of the PostgreSQL relational database by adding support for storing, indexing, and querying geospatial data.
 - A **Next.js** frontend for the user interface
 
 ---
@@ -17,7 +18,7 @@ make up
 This will:
 - Build the Django container
 - Build the Next.js frontend container
-- Start the PostgreSQL database
+- Start the PostGIS database
 - Run:
   - Django server at http://localhost:8000
   - Next.js dev server at http://localhost:3000

@@ -1,3 +1,4 @@
+from pprint import pprint
 from django.conf import settings
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
@@ -50,13 +51,6 @@ class CustomJWTAuthentication(JWTAuthentication):
         # print("cookies:", request.COOKIES)
         if raw_token:
             validated_token = self.get_validated_token(raw_token)
-            auth_user = self.get_user(validated_token), validated_token
-            # auth_account = auth_user[0]
-            #
-            # if auth_account.account_type == "company":
-            #     account = CompanyService().get(auth_account.id)
-            # else:
-            #     account = UserService().get(auth_account.id)
+            auth_user = self.get_user(validated_token)
 
-            # auth_user[0] = account
-            return (auth_user[0], auth_user[1])
+            return auth_user, validated_token

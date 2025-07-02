@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "0e2dee9822a9bcd2de295cb9690fe9ac8da5c2fccea60c971939cccfeb6dc759"
+            "sha256": "119fe461c8bf32c2f82b927375c2894d06d9cafa3016c6666f4532bcde7e904e"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -211,6 +211,23 @@
             "index": "pypi",
             "markers": "python_version >= '3.8'",
             "version": "==0.15.0"
+        },
+        "factory-boy": {
+            "hashes": [
+                "sha256:1c39e3289f7e667c4285433f305f8d506efc2fe9c73aaea4151ebd5cdea394fc",
+                "sha256:866862d226128dfac7f2b4160287e899daf54f2612778327dd03d0e2cb1e3d03"
+            ],
+            "index": "pypi",
+            "markers": "python_version >= '3.8'",
+            "version": "==3.3.3"
+        },
+        "faker": {
+            "hashes": [
+                "sha256:7f69d579588c23d5ce671f3fa872654ede0e67047820255f43a4aa1925b89780",
+                "sha256:cb81c09ebe06c32a10971d1bbdb264bb0e22b59af59548f011ac4809556ce533"
+            ],
+            "markers": "python_version >= '3.9'",
+            "version": "==37.4.0"
         },
         "geojson": {
             "hashes": [

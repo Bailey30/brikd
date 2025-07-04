@@ -1,6 +1,9 @@
 from pprint import pprint
+from django.db.models import query
 from django.http import Http404
+from requests import request
 from rest_framework.exceptions import APIException, ValidationError
+from common.pagination import LimitOffsetPagination, get_paginated_response
 from common.utils import get_postcode_coordinates
 from rest_framework import status
 from rest_framework import serializers
@@ -43,6 +46,9 @@ class JobDetailView(APIView):
 
 
 class ListJobView(APIView):
+    class Pagination(LimitOffsetPagination):
+        pass
+
     class JobOutputSerializer(serializers.ModelSerializer):
         company = CompanyDetailView().OutputSerializer()
         site = SiteDetailView().OutputSerializer()
@@ -62,11 +68,17 @@ class ListJobView(APIView):
             ]
 
     def get(self, request) -> Response:
-        jobs = JobService().list(request.user)
+        params = request.GET
+        limit = params.get("limit", None)
 
-        return Response(
-            data={"jobs": self.JobOutputSerializer(jobs, many=True).data},
-            status=status.HTTP_200_OK,
+        jobs = JobService().list(request.user, limit)
+
+        return get_paginated_response(
+            pagination_class=self.Pagination,
+            serializer_class=self.JobOutputSerializer,
+            queryset=jobs,
+            request=request,
+            view=self,
         )
 
 

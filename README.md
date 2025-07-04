@@ -87,20 +87,6 @@ make makemigrations-common
 ---
 
 
-
-## Useful `make` Commands
-
-| Task                         | Command                |
-|------------------------------|------------------------|
-| Start all containers         | `make up`              |
-| Stop and clean up            | `make down`            |
-| Make migrations              | `make makemigrations`  |
-| Apply migrations             | `make migrate`         |
-| Create superuser             | `make createsuperuser` |
-| Run Django manually          | `make runserver`       |
-
----
-
 ## File conventions (backend)
 
 - `urls.py` – route definitions

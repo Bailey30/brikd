@@ -8,7 +8,7 @@ from django.contrib.gis.db.models.functions import (
 )  # For DB distance annotation
 from jobs.models import Job
 from common.models import BaseUser
-
+from django.conf import settings
 from django.db.models import QuerySet
 
 from sites.services import SiteService
@@ -43,8 +43,10 @@ class JobService:
         job = Job.objects.get(id=id)
         return job
 
-    def list(self, request_user) -> QuerySet[Job]:
-        jobs = Job.objects.all()
+    def list(self, request_user, limit) -> QuerySet[Job]:
+        limit = limit or settings.PAGINATION["default_limit"]
+
+        jobs = Job.objects.all()[: int(limit)]
 
         try:
             # If the request was made by a jobseeker, annotate the jobs with
@@ -54,7 +56,7 @@ class JobService:
                 isinstance(request_user, BaseUser)
                 and request_user.account_type == "jobseeker"
             ):
-                user = UserService().get(request_user.id)
+                user = UserService().get(request_user.id)  # pyright: ignore
                 coordinates = get_postcode_coordinates(user.search_postcode)
                 point = self.create_gis_point(coordinates)
 
@@ -71,6 +73,7 @@ class JobService:
             Job.objects.annotate(distance=Distance("site__coordinates", point))
             .filter(site__coordinates__distance_lte=(point, D(mi=radius)))
             .order_by("distance")
+            .order_by("created_at")
         )
 
         return jobs

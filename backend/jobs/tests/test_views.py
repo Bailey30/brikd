@@ -1,10 +1,12 @@
 from pprint import pprint
 
+from django.conf import settings
 from rest_framework.test import APIClient
 from rest_framework import status
 from rest_framework.test import APITestCase
 from django.urls import reverse
 from companies.factories import CompanyFactory
+from jobs.factories import JobFactory
 from jobs.models import Job
 from sites.factories import SiteFactory
 from users.factories import UserFactory
@@ -32,7 +34,7 @@ class TestJobViews(APITestCase):
     def test_should_list_no_jobs(self):
         res = self.client.get(reverse("jobs:list"), format="json")
 
-        self.assertEqual(0, len(res.data["jobs"]))
+        self.assertEqual(0, len(res.data["results"]))
 
     def test_should_get_one_job(self):
         company = self.company
@@ -43,7 +45,6 @@ class TestJobViews(APITestCase):
         res = self.client.post(reverse("jobs:create"), job, format="json")
 
         created_job = res.data["job"]
-
         res = self.client.get(reverse("jobs:get", args=[created_job["id"]]))
 
         self.assertEqual(status.HTTP_200_OK, res.status_code)
@@ -131,18 +132,15 @@ class TestJobViews(APITestCase):
         site_1 = SiteFactory(company=company)
         site_2 = SiteFactory(company=company, postcode="M15 5Ab")
 
-        job_1 = {**test_job_details, "site_id": site_1.id, "company_id": company.id}
-        job_2 = {**test_job_details, "site_id": site_2.id, "company_id": company.id}
+        JobFactory.create_batch(25, site=site_1, company=company)
+        JobFactory.create_batch(25, site=site_2, company=company)
 
-        company_client.post(reverse("jobs:create"), job_1, format="json")
-        company_client.post(reverse("jobs:create"), job_2, format="json")
+        self.assertEqual(50, Job.objects.count())
 
-        self.assertEqual(2, Job.objects.count())
-
-        res = company_client.get(reverse("jobs:list"))
+        res = company_client.get(reverse("jobs:list"), format="json")
 
         # Distance will not be in the properties of Job when listed by a company
-        for job in res.data["jobs"]:
+        for job in res.data["results"]:
             self.assertNotIn("distance", job)
 
         # Create and log in a jobseeker account
@@ -163,7 +161,25 @@ class TestJobViews(APITestCase):
         res = jobseeker_client.get(reverse("jobs:list"))
 
         self.assertEqual(status.HTTP_200_OK, res.status_code)
-        self.assertEqual(2, len(res.data["jobs"]))
 
-        for job in res.data["jobs"]:
+        for job in res.data["results"]:
             self.assertIn("distance", job)
+
+    def test_should_paginate_correct_amount(self):
+        company = CompanyFactory()
+        company_client = APIClient()
+        company_client.post(reverse("auth:token_obtain_pair"), test_company_credentials)
+
+        site_1 = SiteFactory(company=company)
+
+        JobFactory.create_batch(100, site=site_1, company=company)
+
+        res = self.client.get(reverse("jobs:list"))
+
+        self.assertEqual(settings.PAGINATION["default_limit"], res.data["limit"])
+        self.assertEqual(100, len(res.data["results"]))
+
+        res = self.client.get(reverse("jobs:list", query=[("limit", 25)]))
+
+        self.assertEqual(25, res.data["limit"])
+        self.assertEqual(25, len(res.data["results"]))

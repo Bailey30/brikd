@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from common.service_utils import update_model
 from users.models import User
 
 
@@ -25,4 +26,8 @@ class UserService:
 
     def get(self, id: str) -> User:
         user = User.objects.get(profile_id=id)
+        return user
+
+    def update(self, user: User, data: dict) -> User:
+        user, _ = update_model(user, data)
         return user

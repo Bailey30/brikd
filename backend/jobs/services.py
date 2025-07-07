@@ -6,6 +6,7 @@ from django.contrib.gis.measure import D
 from django.contrib.gis.db.models.functions import (
     Distance,
 )  # For DB distance annotation
+from jobs.filters import JobFilter
 from jobs.models import Job
 from common.models import BaseUser
 from django.conf import settings
@@ -43,10 +44,12 @@ class JobService:
         job = Job.objects.get(id=id)
         return job
 
-    def list(self, request_user, limit) -> QuerySet[Job]:
-        limit = limit or settings.PAGINATION["default_limit"]
+    def list(self, request_user, params) -> QuerySet[Job]:
+        limit = params.get("limit", settings.PAGINATION["default_limit"])
 
         jobs = Job.objects.all()[: int(limit)]
+
+        # TODO: create one filtering service based off of query parameters
 
         try:
             # If the request was made by a jobseeker, annotate the jobs with
@@ -67,6 +70,8 @@ class JobService:
         return jobs
 
     def list_within_radius(self, radius, coordinates):
+        # TODO: make generic filtering service that only does this if radius and postcode params are present.
+
         point = self.create_gis_point(coordinates)
 
         jobs = (
@@ -77,6 +82,11 @@ class JobService:
         )
 
         return jobs
+
+    def filter(self, params, request) -> QuerySet[Job]:
+        jobs = Job.objects.all()
+        filtered_jobs = JobFilter(params, jobs, request=request).qs
+        return filtered_jobs
 
     def update(self, job: Job, data: dict) -> Job:
         updated_job, _ = update_model(job, data)

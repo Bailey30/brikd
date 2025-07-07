@@ -11,9 +11,13 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from authentication.views import BaseAuthenticatedView
 from companies.views import CompanyDetailView
+from jobs.filters import JobFilter
 from jobs.models import Job
 from jobs.services import JobService
 from sites.views import SiteDetailView
+
+from django.contrib.gis.db.models.functions import Distance
+from common.utils import get_postcode_coordinates, create_gis_point
 
 
 class JobOutputSerializer(serializers.ModelSerializer):
@@ -71,7 +75,7 @@ class ListJobView(APIView):
         params = request.GET
         limit = params.get("limit", None)
 
-        jobs = JobService().list(request.user, limit)
+        jobs = JobService().list(request.user, params)
 
         return get_paginated_response(
             pagination_class=self.Pagination,
@@ -83,6 +87,8 @@ class ListJobView(APIView):
 
 
 class FilterJobView(APIView):
+    filterset_class = JobFilter
+
     class JobOutputSerializer(serializers.ModelSerializer):
         company = CompanyDetailView().OutputSerializer()
         site = SiteDetailView().OutputSerializer()
@@ -94,6 +100,7 @@ class FilterJobView(APIView):
                 "id",
                 "title",
                 "description",
+                "created_at",
                 "hourly_rate",
                 "daily_rate",
                 "company",
@@ -104,8 +111,17 @@ class FilterJobView(APIView):
     def get(self, request) -> Response:
         params = request.GET
 
-        coordinates = get_postcode_coordinates(params["postcode"])
-        jobs = JobService().list_within_radius(params["radius"], coordinates)
+        sort = self.request.GET.get("sort")
+        postcode = self.request.GET.get("postcode")
+
+        if sort in ["distance_closest", "distance_further"] and postcode is None:
+            raise ValidationError(
+                "Include postcode as a query parameter when ordering by distance."
+            )
+
+        jobs = JobService().filter(params, request)
+
+        # TODO: pagination
 
         return Response(
             data={"jobs": self.JobOutputSerializer(jobs, many=True).data},

@@ -118,7 +118,7 @@ class TestJobViews(APITestCase):
         self.client.post(reverse("jobs:create"), job_2, format="json")
 
         res = self.client.get(
-            reverse("jobs:filter", query=[("postcode", "M146UF"), ("radius", 10)])
+            reverse("jobs:filter", query=[("postcode", "M146UF"), ("distance", 10)])
         )
 
         self.assertEqual(status.HTTP_200_OK, res.status_code)
@@ -183,3 +183,88 @@ class TestJobViews(APITestCase):
 
         self.assertEqual(25, res.data["limit"])
         self.assertEqual(25, len(res.data["results"]))
+
+    def test_should_sort_and_filter_correcty_with_search_params(self):
+        company = CompanyFactory()
+
+        site_1 = SiteFactory(company=company, postcode="M1 1AE")
+        site_2 = SiteFactory(company=company, postcode="M2 3HQ")
+        site_3 = SiteFactory(company=company, postcode="M3 5GS")
+        site_4 = SiteFactory(company=company, postcode="M4 6BB")
+        site_5 = SiteFactory(company=company, postcode="M5 4WT")
+        site_6 = SiteFactory(company=company, postcode="M6 7RT")
+        site_7 = SiteFactory(company=company, postcode="SK1 1EB")
+        site_8 = SiteFactory(company=company, postcode="WA1 4RW")
+        site_9 = SiteFactory(company=company, postcode="OL1 3LG")
+        site_10 = SiteFactory(company=company, postcode="L1 8JQ")
+
+        JobFactory(site=site_1, company=company, hourly_rate=10)
+        JobFactory(site=site_2, company=company, hourly_rate=12)
+        JobFactory(site=site_3, company=company, hourly_rate=15)
+        JobFactory(site=site_4, company=company, hourly_rate=9)
+        JobFactory(site=site_5, company=company, hourly_rate=20)
+        JobFactory(site=site_6, company=company, hourly_rate=8)
+        JobFactory(site=site_7, company=company, hourly_rate=11)
+        JobFactory(site=site_8, company=company, hourly_rate=14)
+        JobFactory(site=site_9, company=company, hourly_rate=13)
+        JobFactory(site=site_10, company=company, hourly_rate=7)
+
+        res = self.client.get(
+            reverse(
+                "jobs:filter",
+                query=[
+                    ("postcode", "M146UF"),
+                    ("distance", 10),
+                    ("sort", "hourly_rate_highest"),
+                ],
+            )
+        )
+
+        jobs = res.data["jobs"]
+
+        for i in range(len(jobs) - 1):
+            self.assertGreaterEqual(
+                float(jobs[i]["hourly_rate"]), float(jobs[i + 1]["hourly_rate"])
+            )
+
+        self.assertEqual(200, res.status_code)
+
+        self.assertEqual(8, len(jobs))
+
+        res = self.client.get(
+            reverse(
+                "jobs:filter",
+                query=[
+                    ("sort", "distance_closest"),
+                    ("postcode", "M146UF"),
+                    ("distance", 10),
+                ],
+            )
+        )
+
+        jobs = res.data["jobs"]
+        for job in jobs:
+            print(
+                "title:",
+                job["title"],
+                "hourly_rate:",
+                job["hourly_rate"],
+                "distance:",
+                job["distance"],
+                "postcode:",
+                job["site"]["postcode"],
+            )
+
+        for i in range(len(jobs) - 1):
+            self.assertLessEqual(jobs[i]["distance"], jobs[i + 1]["distance"])
+
+        res = self.client.get(
+            reverse(
+                "jobs:filter",
+                query=[
+                    ("sort", "distance_closest"),
+                ],
+            )
+        )
+
+        self.assertEqual(status.HTTP_400_BAD_REQUEST, res.status_code)

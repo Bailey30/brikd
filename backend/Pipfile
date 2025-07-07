@@ -15,6 +15,7 @@ drf-standardized-errors = "*"
 geojson = "*"
 django = "*"
 factory-boy = "*"
+django-filter = "*"
 
 [dev-packages]
 

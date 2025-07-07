@@ -26,7 +26,7 @@ class Job(BaseModel):
             or "Rate not set"
         )
 
-        return f"{self.title} - {self.company.name} - {rate}"
+        return f"{self.title} - {self.company.name} - {rate}. Created at: {self.created_at}"
 
     @property
     def id(self):

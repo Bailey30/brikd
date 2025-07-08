@@ -1,7 +1,11 @@
+from django.contrib.gis.db.models.functions import Distance
+from django.db.models import QuerySet
 import requests
 from rest_framework.exceptions import ValidationError
 
 from django.contrib.gis.geos.geometry import GEOSGeometry
+
+from jobs.models import Job
 
 
 def get_postcode_coordinates(postcode):
@@ -22,3 +26,16 @@ def create_gis_point(coordinates) -> GEOSGeometry:
     return GEOSGeometry(
         f"POINT ({coordinates['longitude']} {coordinates['latitude']})", srid=4326
     )
+
+
+def annotate_queryset_with_distance(queryset, postcode) -> QuerySet[Job]:
+    coordinates = get_postcode_coordinates(postcode)
+    point = create_gis_point(coordinates)
+
+    mile_converstion_factor = 0.00062137
+
+    jobs = queryset.annotate(
+        distance=Distance("site__coordinates", point) * mile_converstion_factor
+    )
+
+    return jobs

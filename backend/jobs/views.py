@@ -1,23 +1,15 @@
-from pprint import pprint
-from django.db.models import query
 from django.http import Http404
-from requests import request
-from rest_framework.exceptions import APIException, ValidationError
+from rest_framework.exceptions import ValidationError
 from common.pagination import LimitOffsetPagination, get_paginated_response
-from common.utils import get_postcode_coordinates
 from rest_framework import status
 from rest_framework import serializers
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from authentication.views import BaseAuthenticatedView
 from companies.views import CompanyDetailView
-from jobs.filters import JobFilter
 from jobs.models import Job
 from jobs.services import JobService
 from sites.views import SiteDetailView
-
-from django.contrib.gis.db.models.functions import Distance
-from common.utils import get_postcode_coordinates, create_gis_point
 
 
 class JobOutputSerializer(serializers.ModelSerializer):
@@ -73,9 +65,19 @@ class ListJobView(APIView):
 
     def get(self, request) -> Response:
         params = request.GET
-        limit = params.get("limit", None)
 
-        jobs = JobService().list(request.user, params)
+        sort = params.get("sort")
+        postcode = params.get("postcode")
+        distance = params.get("distance")
+
+        if (
+            sort in ["distance_closest", "distance_furthest"] or distance
+        ) and postcode is None:
+            raise ValidationError(
+                "Include postcode as a query parameter when ordering by distance."
+            )
+
+        jobs = JobService().filter(params, request)
 
         return get_paginated_response(
             pagination_class=self.Pagination,
@@ -83,49 +85,6 @@ class ListJobView(APIView):
             queryset=jobs,
             request=request,
             view=self,
-        )
-
-
-class FilterJobView(APIView):
-    filterset_class = JobFilter
-
-    class JobOutputSerializer(serializers.ModelSerializer):
-        company = CompanyDetailView().OutputSerializer()
-        site = SiteDetailView().OutputSerializer()
-        distance = serializers.CharField()
-
-        class Meta:  # pyright: ignore
-            model = Job
-            fields = [
-                "id",
-                "title",
-                "description",
-                "created_at",
-                "hourly_rate",
-                "daily_rate",
-                "company",
-                "site",
-                "distance",
-            ]
-
-    def get(self, request) -> Response:
-        params = request.GET
-
-        sort = self.request.GET.get("sort")
-        postcode = self.request.GET.get("postcode")
-
-        if sort in ["distance_closest", "distance_further"] and postcode is None:
-            raise ValidationError(
-                "Include postcode as a query parameter when ordering by distance."
-            )
-
-        jobs = JobService().filter(params, request)
-
-        # TODO: pagination
-
-        return Response(
-            data={"jobs": self.JobOutputSerializer(jobs, many=True).data},
-            status=status.HTTP_200_OK,
         )
 
 

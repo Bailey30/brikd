@@ -118,11 +118,11 @@ class TestJobViews(APITestCase):
         self.client.post(reverse("jobs:create"), job_2, format="json")
 
         res = self.client.get(
-            reverse("jobs:filter", query=[("postcode", "M146UF"), ("distance", 10)])
+            reverse("jobs:list", query=[("postcode", "M146UF"), ("distance", 10)])
         )
 
         self.assertEqual(status.HTTP_200_OK, res.status_code)
-        self.assertEqual(1, len(res.data["jobs"]))
+        self.assertEqual(1, len(res.data["results"]))
 
     def test_should_list_jobs_with_correct_distance_value(self):
         company = CompanyFactory()
@@ -158,7 +158,12 @@ class TestJobViews(APITestCase):
         jobseeker_client.force_authenticate(user=jobseeker.profile)
 
         # Get the jobs as jobseeker
-        res = jobseeker_client.get(reverse("jobs:list"))
+        res = jobseeker_client.get(
+            reverse(
+                "jobs:list",
+                query=[("postcode", "M146UF")],
+            )
+        )
 
         self.assertEqual(status.HTTP_200_OK, res.status_code)
 
@@ -211,7 +216,7 @@ class TestJobViews(APITestCase):
 
         res = self.client.get(
             reverse(
-                "jobs:filter",
+                "jobs:list",
                 query=[
                     ("postcode", "M146UF"),
                     ("distance", 10),
@@ -220,7 +225,7 @@ class TestJobViews(APITestCase):
             )
         )
 
-        jobs = res.data["jobs"]
+        jobs = res.data["results"]
 
         for i in range(len(jobs) - 1):
             self.assertGreaterEqual(
@@ -233,7 +238,7 @@ class TestJobViews(APITestCase):
 
         res = self.client.get(
             reverse(
-                "jobs:filter",
+                "jobs:list",
                 query=[
                     ("sort", "distance_closest"),
                     ("postcode", "M146UF"),
@@ -242,7 +247,7 @@ class TestJobViews(APITestCase):
             )
         )
 
-        jobs = res.data["jobs"]
+        jobs = res.data["results"]
         for job in jobs:
             print(
                 "title:",
@@ -260,7 +265,7 @@ class TestJobViews(APITestCase):
 
         res = self.client.get(
             reverse(
-                "jobs:filter",
+                "jobs:list",
                 query=[
                     ("sort", "distance_closest"),
                 ],
@@ -268,3 +273,9 @@ class TestJobViews(APITestCase):
         )
 
         self.assertEqual(status.HTTP_400_BAD_REQUEST, res.status_code)
+
+        res = self.client.get(reverse("jobs:list"))
+
+        jobs = res.data["results"]
+
+        self.assertEqual(10, len(jobs))

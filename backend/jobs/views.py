@@ -74,10 +74,10 @@ class ListJobView(APIView):
             sort in ["distance_closest", "distance_furthest"] or distance
         ) and postcode is None:
             raise ValidationError(
-                "Include postcode as a query parameter when ordering by distance."
+                "Include postcode as a query parameter when ordering or filtering by distance."
             )
 
-        jobs = JobService().filter(params, request)
+        jobs = JobService().filter(params)
 
         return get_paginated_response(
             pagination_class=self.Pagination,

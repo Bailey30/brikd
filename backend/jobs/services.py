@@ -42,8 +42,7 @@ class JobService:
         job = Job.objects.get(id=id)
         return job
 
-    def filter(self, params, request) -> QuerySet[Job]:
-        params = request.GET
+    def filter(self, params) -> QuerySet[Job]:
         sort = params.get("sort")
         distance = params.get("distance")
         postcode = params.get("postcode")

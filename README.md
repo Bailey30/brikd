@@ -31,6 +31,14 @@ make migrate
 
 ---
 
+### Swagger
+
+Once the backend is running view the api endpoints at:
+
+```localhost:8000/swagger```
+
+---
+
 ## Development Server Commands
 
 Start only the backend:

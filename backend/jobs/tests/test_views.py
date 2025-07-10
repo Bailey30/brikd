@@ -214,6 +214,7 @@ class TestJobViews(APITestCase):
         JobFactory(site=site_9, company=company, hourly_rate=13)
         JobFactory(site=site_10, company=company, hourly_rate=7)
 
+        # Should order jobs starting with highest hourly_rate first.
         res = self.client.get(
             reverse(
                 "jobs:list",
@@ -236,6 +237,7 @@ class TestJobViews(APITestCase):
 
         self.assertEqual(8, len(jobs))
 
+        # Should order jobs with closest first.
         res = self.client.get(
             reverse(
                 "jobs:list",
@@ -263,6 +265,7 @@ class TestJobViews(APITestCase):
         for i in range(len(jobs) - 1):
             self.assertLessEqual(jobs[i]["distance"], jobs[i + 1]["distance"])
 
+        # Should return error if including distance filtering or sorting without postcode
         res = self.client.get(
             reverse(
                 "jobs:list",
@@ -273,9 +276,16 @@ class TestJobViews(APITestCase):
         )
 
         self.assertEqual(status.HTTP_400_BAD_REQUEST, res.status_code)
+        self.assertEqual(
+            "Include postcode as a query parameter when ordering or filtering by distance.",
+            res.data["errors"][0]["detail"],
+        )
 
+        # Should get jobs without any query params.
         res = self.client.get(reverse("jobs:list"))
 
         jobs = res.data["results"]
 
         self.assertEqual(10, len(jobs))
+        for job in res.data["results"]:
+            self.assertNotIn("distance", job)

@@ -1,4 +1,5 @@
 from django.db.models import QuerySet
+from rest_framework.exceptions import ValidationError
 from django_filters import rest_framework as filters
 
 from jobs.models import Job
@@ -11,42 +12,41 @@ from django.contrib.gis.db.models.functions import Distance
 from django.contrib.gis.measure import D
 
 
-class CustomJobFilter:
-    qs: QuerySet[Job]
+class JobFilter:
+    is_annotated: bool = False
 
-    def __init__(self, params, jobs):
-        sort = params.get("sort")
-        distance = params.get("distance")
-        postcode = params.get("postcode")
+    def __init__(self, jobs, params) -> None:
+        self.jobs = jobs
+        self.params = params
 
-        if postcode:
+    def filter(self):
+        distance = self.params.get("distance")
+        postcode = self.params.get("postcode")
+
+        jobs = self.jobs
+
+        if postcode and not self.is_annotated:
             jobs = annotate_queryset_with_distance(jobs, postcode)
 
-        # Distance filtering only allowed when postcode is provided.
-        if distance:
-            jobs = self.filter_by_distance(params, jobs)
+        if distance and postcode:
+            point = create_gis_point(get_postcode_coordinates(postcode))
+            jobs = jobs.filter(site__coordinates__distance_lte=(point, D(mi=distance)))
 
-        if sort:
-            jobs = self.sort(params, jobs, bool(distance))
+        self.jobs = jobs
 
-        self.qs = jobs
+        return self
 
-    def filter_by_distance(self, params, jobs):
-        distance = params.get("distance")
-        postcode = params.get("postcode")
+    def sort(self):
+        sort = self.params.get("sort")
 
-        point = create_gis_point(get_postcode_coordinates(postcode))
+        if sort is None:
+            return self
 
-        jobs = jobs.filter(site__coordinates__distance_lte=(point, D(mi=distance)))
-
-        return jobs
-
-    def sort(self, params, jobs, is_annotated):
-        sort = params.get("sort")
+        jobs = self.jobs
 
         # Only annotate the jobs if it is required, and hasnt been done already elsewhere.
-        if not is_annotated and sort in ["distance_closest", "distance_furthest"]:
-            jobs = annotate_queryset_with_distance(jobs, params.get("postcode"))
+        if not self.is_annotated and sort in ["distance_closest", "distance_furthest"]:
+            jobs = annotate_queryset_with_distance(jobs, self.params.get("postcode"))
 
         sort_dict = {
             "distance_closest": "distance",
@@ -59,7 +59,25 @@ class CustomJobFilter:
 
         jobs = jobs.order_by(sort_dict[sort])
 
-        return jobs
+        self.jobs = jobs
+
+        return self
+
+    def queryset(self):
+        return self.jobs
+
+    @staticmethod
+    def validate_params(params):
+        distance = params.get("distance")
+        postcode = params.get("postcode")
+        sort = params.get("sort")
+
+        if (
+            distance or sort in ["distance_closest", "distance_furthest"]
+        ) and postcode is None:
+            raise ValidationError(
+                "Include postcode as a query parameter when ordering or filtering by distance."
+            )
 
 
 # Keep this just so i remember how it works.

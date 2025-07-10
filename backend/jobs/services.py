@@ -5,7 +5,7 @@ from companies.services import CompanyService
 from django.db.models import QuerySet
 from sites.services import SiteService
 
-from jobs.filters import CustomJobFilter
+from jobs.filters import JobFilter
 from jobs.models import Job
 
 
@@ -37,20 +37,11 @@ class JobService:
         return job
 
     def filter(self, params) -> QuerySet[Job]:
-        sort = params.get("sort")
-        distance = params.get("distance")
-        postcode = params.get("postcode")
-
-        if (
-            distance or sort in ["distance_closest", "distance_furthest"]
-        ) and postcode is None:
-            raise ValidationError(
-                "Include postcode as a query parameter when ordering by distance."
-            )
+        JobFilter.validate_params(params)
 
         jobs = Job.objects.all()
 
-        filtered_jobs = CustomJobFilter(params, jobs).qs
+        filtered_jobs = JobFilter(jobs, params).filter().sort().queryset()
 
         return filtered_jobs
 

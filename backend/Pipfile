@@ -17,7 +17,6 @@ django = "*"
 factory-boy = "*"
 django-filter = "*"
 drf-yasg = "*"
-drf-spectacular = "*"
 
 [dev-packages]
 

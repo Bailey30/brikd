@@ -11,7 +11,7 @@ class JobFactory(factory.django.DjangoModelFactory):
 
     company = factory.declarations.SubFactory(CompanyFactory)
     site = factory.declarations.SubFactory(SiteFactory)
-    title = factory.declarations.Sequence(lambda n: "site%d" % n)
-    description = factory.declarations.Sequence(lambda n: "site%d" % n)
+    title = factory.declarations.Sequence(lambda n: "job %d" % n)
+    description = factory.declarations.Sequence(lambda n: "job %d description" % n)
     hourly_rate = 1.00
     daily_rate = None

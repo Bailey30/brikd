@@ -1,19 +1,12 @@
-from django.contrib.gis.geos.geometry import GEOSGeometry
-from common.service_utils import update_model
-from common.utils import get_postcode_coordinates
-from companies.services import CompanyService
-from django.contrib.gis.measure import D
-from django.contrib.gis.db.models.functions import (
-    Distance,
-)  # For DB distance annotation
-from jobs.models import Job
 from common.models import BaseUser
-from django.conf import settings
+from rest_framework.exceptions import ValidationError
+from common.service_utils import update_model
+from companies.services import CompanyService
 from django.db.models import QuerySet
-
 from sites.services import SiteService
-from users.models import User
-from users.services import UserService
+
+from jobs.filters import JobFilter
+from jobs.models import Job
 
 
 class JobService:
@@ -43,40 +36,14 @@ class JobService:
         job = Job.objects.get(id=id)
         return job
 
-    def list(self, request_user, limit) -> QuerySet[Job]:
-        limit = limit or settings.PAGINATION["default_limit"]
+    def filter(self, params) -> QuerySet[Job]:
+        JobFilter.validate_params(params)
 
-        jobs = Job.objects.all()[: int(limit)]
+        jobs = Job.objects.all()
 
-        try:
-            # If the request was made by a jobseeker, annotate the jobs with
-            # the distance from their saved location.
-            # TODO: handle if they saved a location instead of a postcode.
-            if (
-                isinstance(request_user, BaseUser)
-                and request_user.account_type == "jobseeker"
-            ):
-                user = UserService().get(request_user.id)  # pyright: ignore
-                coordinates = get_postcode_coordinates(user.search_postcode)
-                point = self.create_gis_point(coordinates)
+        filtered_jobs = JobFilter(jobs, params).filter().sort().queryset()
 
-                jobs = jobs.annotate(distance=Distance("site__coordinates", point))
-        except Exception as e:
-            raise e
-
-        return jobs
-
-    def list_within_radius(self, radius, coordinates):
-        point = self.create_gis_point(coordinates)
-
-        jobs = (
-            Job.objects.annotate(distance=Distance("site__coordinates", point))
-            .filter(site__coordinates__distance_lte=(point, D(mi=radius)))
-            .order_by("distance")
-            .order_by("created_at")
-        )
-
-        return jobs
+        return filtered_jobs
 
     def update(self, job: Job, data: dict) -> Job:
         updated_job, _ = update_model(job, data)
@@ -84,8 +51,3 @@ class JobService:
 
     def delete(self, job: Job) -> None:
         job.delete()
-
-    def create_gis_point(self, coordinates) -> GEOSGeometry:
-        return GEOSGeometry(
-            f"POINT ({coordinates['longitude']} {coordinates['latitude']})", srid=4326
-        )

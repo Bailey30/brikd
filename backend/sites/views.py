@@ -20,6 +20,7 @@ class SiteDetailView(BaseAuthenticatedView):
         company = CompanyDetailView().OutputSerializer()
 
         class Meta:  # pyright: ignore
+            ref_name = "SiteDetailOutputSerializer"
             model = Site
             fields = ["id", "name", "postcode", "company", "coordinates"]
             depth = 1

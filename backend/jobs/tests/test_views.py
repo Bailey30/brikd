@@ -49,7 +49,10 @@ class TestJobViews(APITestCase):
 
         self.assertEqual(status.HTTP_200_OK, res.status_code)
         self.assertEqual(res.data["job"]["id"], created_job["id"])
-        # self.assertIn("distance", created_job)
+
+        res = self.client.get(reverse("jobs:get", args=[9999999999]))
+
+        self.assertEqual(status.HTTP_404_NOT_FOUND, res.status_code)
 
     def test_should_create_job(self):
         company = self.company

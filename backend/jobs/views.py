@@ -1,76 +1,55 @@
 from django.http import Http404
-from rest_framework.exceptions import ValidationError
+from rest_framework.exceptions import NotFound
 from common.pagination import LimitOffsetPagination, get_paginated_response
 from rest_framework import status
-from rest_framework import serializers
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from authentication.views import BaseAuthenticatedView
-from companies.views import CompanyDetailView
 from jobs.models import Job
 from jobs.services import JobService
-from sites.views import SiteDetailView
-
-
-class JobOutputSerializer(serializers.ModelSerializer):
-    company = CompanyDetailView().OutputSerializer()
-    site = SiteDetailView().OutputSerializer()
-
-    class Meta:  # pyright: ignore
-        model = Job
-        fields = [
-            "id",
-            "title",
-            "description",
-            "hourly_rate",
-            "daily_rate",
-            "company",
-            "site",
-        ]
+from drf_yasg.utils import swagger_auto_schema
+from rest_framework.generics import ListAPIView
+from jobs.swagger import (
+    list_job_view_schema,
+    job_detail_view_schema,
+    create_job_view_schema,
+    update_job_view_schema,
+    delete_job_view_schema,
+)
+from jobs.serializers import (
+    JobListOutputSerializer,
+    JobOutputSerializer,
+    CreateJobInputSerializer,
+    UpdateJobInputSerializer,
+)
 
 
 class JobDetailView(APIView):
+    @swagger_auto_schema(**job_detail_view_schema)
     def get(self, _, id) -> Response:
-        job = JobService().get(id)
-
-        if job is None:
-            raise Http404
+        try:
+            job = JobService().get(id)
+        except Job.DoesNotExist:
+            raise NotFound(detail="Job with this ID does not exist.")
 
         return Response(
             data={"job": JobOutputSerializer(job).data}, status=status.HTTP_200_OK
         )
 
 
-class ListJobView(APIView):
-    class Pagination(LimitOffsetPagination):
-        pass
+class ListJobView(ListAPIView):
+    pagination_class = LimitOffsetPagination
+    serializer_class = JobListOutputSerializer
 
-    class JobOutputSerializer(serializers.ModelSerializer):
-        company = CompanyDetailView().OutputSerializer()
-        site = SiteDetailView().OutputSerializer()
-        distance = serializers.CharField(required=False)
-
-        class Meta:  # pyright: ignore
-            model = Job
-            fields = [
-                "id",
-                "title",
-                "description",
-                "hourly_rate",
-                "daily_rate",
-                "company",
-                "site",
-                "distance",
-            ]
-
+    @swagger_auto_schema(**list_job_view_schema)
     def get(self, request) -> Response:
         params = request.GET
 
         jobs = JobService().filter(params)
 
         return get_paginated_response(
-            pagination_class=self.Pagination,
-            serializer_class=self.JobOutputSerializer,
+            pagination_class=self.pagination_class,
+            serializer_class=self.serializer_class,
             queryset=jobs,
             request=request,
             view=self,
@@ -78,16 +57,9 @@ class ListJobView(APIView):
 
 
 class CreateJobView(BaseAuthenticatedView):
-    class InputSerializer(serializers.Serializer):
-        title = serializers.CharField()
-        description = serializers.CharField()
-        hourly_rate = serializers.IntegerField(required=False)
-        daily_rate = serializers.IntegerField(required=False)
-        company_id = serializers.CharField()
-        site_id = serializers.CharField()
-
+    @swagger_auto_schema(**create_job_view_schema)
     def post(self, request) -> Response:
-        serializer = self.InputSerializer(data=request.data)
+        serializer = CreateJobInputSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
         job = JobService().create(**serializer.validated_data)
@@ -98,19 +70,15 @@ class CreateJobView(BaseAuthenticatedView):
 
 
 class UpdateJobView(BaseAuthenticatedView):
-    class InputSerializer(serializers.Serializer):
-        title = serializers.CharField(required=False)
-        description = serializers.CharField(required=False)
-        hourly_rate = serializers.IntegerField(required=False)
-        daily_rate = serializers.IntegerField(required=False)
-        company_id = serializers.CharField(required=False)
-        site_id = serializers.CharField(required=False)
-
+    @swagger_auto_schema(**update_job_view_schema)
     def patch(self, request, id) -> Response:
-        serializer = self.InputSerializer(data=request.data)
+        serializer = UpdateJobInputSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        job = JobService().get(id)
+        try:
+            job = JobService().get(id)
+        except Job.DoesNotExist:
+            raise NotFound(detail="Job with this ID does not exist.")
 
         updated_job = JobService().update(job, serializer.validated_data)
 
@@ -121,11 +89,12 @@ class UpdateJobView(BaseAuthenticatedView):
 
 
 class DeleteJobView(BaseAuthenticatedView):
+    @swagger_auto_schema(**delete_job_view_schema)
     def post(self, _, id) -> Response:
-        job = JobService().get(id)
-
-        if job is None:
-            raise Http404
+        try:
+            job = JobService().get(id)
+        except Job.DoesNotExist:
+            raise NotFound(detail="Job with this ID does not exist.")
 
         JobService().delete(job)
 

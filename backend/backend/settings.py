@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     "jobs",
     "rest_framework",
     "django_filters",
+    "drf_yasg",
     "django.contrib.gis",
     "django.contrib.admin",
     "django.contrib.auth",

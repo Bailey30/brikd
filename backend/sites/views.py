@@ -1,75 +1,63 @@
-import re
-from pprint import pprint
-from rest_framework import serializers
+from drf_yasg.utils import swagger_auto_schema
+from rest_framework.exceptions import NotFound
+from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 from rest_framework import status
-from django.http import Http404, request
-from django.core.validators import RegexValidator
-from rest_framework.views import APIView
 from authentication.views import BaseAuthenticatedView
 from companies.services import CompanyService
-from companies.views import CompanyDetailView
+from sites.serializers import (
+    CreateSiteInputSerializer,
+    SiteDetailOutputSerializer,
+    UpdateSiteInputSerializer,
+)
 from sites.services import SiteService
 from sites.models import Site
 from rest_framework.permissions import IsAuthenticated
 from authentication.auth import CustomJWTAuthentication
+from sites.swagger import (
+    site_detail_view_schema,
+    list_site_view_schema,
+    create_site_view_schema,
+    update_site_view_schema,
+    delete_site_view_schema,
+)
 
 
 class SiteDetailView(BaseAuthenticatedView):
-    class OutputSerializer(serializers.ModelSerializer):
-        company = CompanyDetailView().OutputSerializer()
-
-        class Meta:  # pyright: ignore
-            ref_name = "SiteDetailOutputSerializer"
-            model = Site
-            fields = ["id", "name", "postcode", "company", "coordinates"]
-            depth = 1
-
-        def to_representation(self, model):  # pyright: ignore
-            values = super().to_representation(model)
-            values["coordinates"] = {
-                "longitude": model.coordinates[0],
-                "latitude": model.coordinates[1],
-            }
-            return values
-
+    @swagger_auto_schema(**site_detail_view_schema)
     def get(self, _, id):
         site = SiteService().get(id)
-        print("site:", site.coordinates[0])
 
-        if site is None:
-            raise Http404
+        try:
+            site = SiteService().get(id)
+        except Site.DoesNotExist:
+            raise NotFound(detail="Site with this ID does not exist.")
 
         return Response(
-            data=self.OutputSerializer(site).data, status=status.HTTP_200_OK
+            data=SiteDetailOutputSerializer(site).data, status=status.HTTP_200_OK
         )
 
 
-class ListSiteView(APIView):
+class ListSiteView(ListAPIView):
+    serializer_class = SiteDetailOutputSerializer
+
+    @swagger_auto_schema(**list_site_view_schema)
     def get(self, _):
         sites = SiteService().list()
 
         return Response(
-            data={"sites": SiteDetailView.OutputSerializer(sites, many=True).data},
+            data={"sites": SiteDetailOutputSerializer(sites, many=True).data},
             status=status.HTTP_200_OK,
         )
-
-
-def uk_postcode_validator(postcode):
-    if re.match(r"^([A-Z]{1,2}\d[A-Z\d]? ?\d[A-Z]{2}|GIR ?0A{2})$", postcode) is None:
-        raise serializers.ValidationError("Invalid UK postcode.")
 
 
 class CreateSiteView(BaseAuthenticatedView):
     permission_classes = [IsAuthenticated]
     authentication_classes = [CustomJWTAuthentication]
 
-    class InputSerializer(serializers.Serializer):
-        name = serializers.CharField()
-        postcode = serializers.CharField(validators=[uk_postcode_validator])
-
+    @swagger_auto_schema(**create_site_view_schema)
     def post(self, request) -> Response:
-        serializer = self.InputSerializer(data=request.data)
+        serializer = CreateSiteInputSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
         account = request.user
@@ -79,7 +67,7 @@ class CreateSiteView(BaseAuthenticatedView):
 
         return Response(
             data={
-                "site": SiteDetailView.OutputSerializer(site).data,
+                "site": SiteDetailOutputSerializer(site).data,
             },
             status=status.HTTP_201_CREATED,
         )
@@ -89,26 +77,21 @@ class UpdateSiteView(BaseAuthenticatedView):
     permission_classes = [IsAuthenticated]
     authentication_classes = [CustomJWTAuthentication]
 
-    class InputSerializer(serializers.Serializer):
-        name = serializers.CharField(required=False)
-        postcode = serializers.CharField(
-            required=False, validators=[uk_postcode_validator]
-        )
-
+    @swagger_auto_schema(**update_site_view_schema)
     def patch(self, request, id) -> Response:
-        serializer = self.InputSerializer(data=request.data)
+        serializer = UpdateSiteInputSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        site = SiteService().get(id)
-
-        if site is None:
-            raise Http404
+        try:
+            site = SiteService().get(id)
+        except Site.DoesNotExist:
+            raise NotFound(detail="Site with this ID does not exist.")
 
         updated_site = SiteService().update(site, serializer.validated_data)
 
         return Response(
             data={
-                "site": SiteDetailView.OutputSerializer(updated_site).data,
+                "site": SiteDetailOutputSerializer(updated_site).data,
             },
             status=status.HTTP_200_OK,
         )
@@ -118,11 +101,14 @@ class DeleteSiteView(BaseAuthenticatedView):
     permission_classes = [IsAuthenticated]
     authentication_classes = [CustomJWTAuthentication]
 
-    def post(self, _, id) -> Response:
+    @swagger_auto_schema(**delete_site_view_schema)
+    def delete(self, _, id) -> Response:
         site = SiteService().get(id)
 
-        if site is None:
-            raise Http404
+        try:
+            site = SiteService().get(id)
+        except Site.DoesNotExist:
+            raise NotFound(detail="Site with this ID does not exist.")
 
         SiteService().delete(site)
 

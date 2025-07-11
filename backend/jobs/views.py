@@ -1,5 +1,5 @@
 from django.http import Http404
-from rest_framework.exceptions import NotFound
+from rest_framework.exceptions import NotFound, ValidationError
 from common.pagination import LimitOffsetPagination, get_paginated_response
 from rest_framework import status
 from rest_framework.response import Response
@@ -45,7 +45,12 @@ class ListJobView(ListAPIView):
     def get(self, request) -> Response:
         params = request.GET
 
-        jobs = JobService().filter(params)
+        # TODO: get jobs for one company or one site.
+
+        try:
+            jobs = JobService().list(params)
+        except ValidationError as e:
+            raise e
 
         return get_paginated_response(
             pagination_class=self.pagination_class,
@@ -90,7 +95,7 @@ class UpdateJobView(BaseAuthenticatedView):
 
 class DeleteJobView(BaseAuthenticatedView):
     @swagger_auto_schema(**delete_job_view_schema)
-    def post(self, _, id) -> Response:
+    def delete(self, _, id) -> Response:
         try:
             job = JobService().get(id)
         except Job.DoesNotExist:

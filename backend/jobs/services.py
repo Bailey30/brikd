@@ -32,11 +32,11 @@ class JobService:
         return job
 
     def get(self, id: str) -> Job:
-        # TODO: annotate jobs with distance to users saved location.
+        # TODO: annotate jobs with distance to users saved location or query param.
         job = Job.objects.get(id=id)
         return job
 
-    def filter(self, params) -> QuerySet[Job]:
+    def list(self, params) -> QuerySet[Job]:
         JobFilter.validate_params(params)
 
         jobs = Job.objects.all()

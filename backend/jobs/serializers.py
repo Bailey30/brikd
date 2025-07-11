@@ -1,10 +1,11 @@
 from sites.views import SiteDetailView
 from rest_framework import serializers
 from jobs.models import Job
+from sites.serializers import SiteDetailOutputSerializer
 
 
 class JobOutputSerializer(serializers.ModelSerializer):
-    site = SiteDetailView().OutputSerializer()
+    site = SiteDetailOutputSerializer()
 
     class Meta:  # pyright: ignore
         model = Job
@@ -19,7 +20,7 @@ class JobOutputSerializer(serializers.ModelSerializer):
 
 
 class JobListOutputSerializer(serializers.ModelSerializer):
-    site = SiteDetailView().OutputSerializer()
+    site = SiteDetailOutputSerializer()
     distance = serializers.CharField(required=False)
 
     class Meta:  # pyright: ignore

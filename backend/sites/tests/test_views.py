@@ -97,7 +97,7 @@ class TestSiteViews(APITestCase):
 
         first_site = res.data["site"]
 
-        res = self.client.post(
+        res = self.client.delete(
             f"/sites/{first_site['id']}/delete",
             format="json",
         )

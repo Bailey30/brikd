@@ -1,4 +1,7 @@
 import json
+from drf_yasg.utils import swagger_auto_schema
+
+from drf_yasg.inspectors import SwaggerAutoSchema
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
@@ -8,6 +11,7 @@ from rest_framework_simplejwt.views import (
 from rest_framework.permissions import IsAuthenticated
 
 from authentication.auth import CustomJWTAuthentication
+from authentication.swagger import get_user_schema
 
 
 class BaseAuthenticatedView(APIView):
@@ -16,6 +20,9 @@ class BaseAuthenticatedView(APIView):
 
 
 class CustomTokenObtainPairView(TokenObtainPairView):
+    @swagger_auto_schema(
+        operation_description="Create an access and refresh JWT. Call this to log a user in."
+    )
     def post(self, request, *args, **kwargs):
         response = super().post(request, *args, **kwargs)
         if response.status_code == 200:
@@ -53,6 +60,7 @@ class GetLoggedInUser(APIView):
     permission_classes = [IsAuthenticated]
     authentication_classes = [CustomJWTAuthentication]
 
+    @swagger_auto_schema(**get_user_schema)
     def get(self, request):
         user = request.user
 

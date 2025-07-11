@@ -101,7 +101,7 @@ class TestJobViews(APITestCase):
 
         created_job = create_res.data["job"]
 
-        res = self.client.post(
+        res = self.client.delete(
             reverse("jobs:delete", args=[created_job["id"]]),
             format="json",
         )

@@ -14,7 +14,7 @@ class TestSiteViews(APITestCase):
     def setUp(self):
         create_test_company()
 
-        self.client.post(reverse("auth:token_obtain_pair"), test_company_credentials)
+        self.client.post(reverse("auth:login"), test_company_credentials)
 
     def test_should_create_site_for_logged_in_account(self):
         res = self.client.post(
@@ -49,7 +49,6 @@ class TestSiteViews(APITestCase):
         site_1 = test_site_credentials
         res = self.client.post(reverse("sites:create"), site_1, format="json")
         site = res.data["site"]
-        print("site:", site)
 
         res = self.client.get(reverse("sites:get", args=[site["id"]]), format="json")
         self.assertEqual(status.HTTP_200_OK, res.status_code)

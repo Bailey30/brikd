@@ -1,7 +1,11 @@
 from django.http import Http404
+from dataclasses import dataclass
+from typing import Optional
+from django.http.request import QueryDict
 from rest_framework.exceptions import NotFound, ValidationError
+from rest_framework.request import Request
 from common.pagination import LimitOffsetPagination, get_paginated_response
-from rest_framework import status
+from rest_framework import serializers, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from authentication.views import BaseAuthenticatedView
@@ -22,6 +26,7 @@ from jobs.serializers import (
     CreateJobInputSerializer,
     UpdateJobInputSerializer,
 )
+from jobs.utils import JobFilterParams
 
 
 class JobDetailView(APIView):
@@ -42,12 +47,11 @@ class ListJobView(ListAPIView):
     serializer_class = JobListOutputSerializer
 
     @swagger_auto_schema(**list_job_view_schema)
-    def get(self, request) -> Response:
+    def get(self, request: Request) -> Response:
         params = request.GET
 
-        # TODO: get jobs for one company or one site.
-
         try:
+            params = self.parse_query_params(params)
             jobs = JobService().list(params)
         except ValidationError as e:
             raise e
@@ -58,6 +62,11 @@ class ListJobView(ListAPIView):
             queryset=jobs,
             request=request,
             view=self,
+        )
+
+    def parse_query_params(self, querydict: QueryDict) -> JobFilterParams:
+        return JobFilterParams(
+            **{param: querydict.get(param) for param in JobFilterParams().__dict__}
         )
 
 

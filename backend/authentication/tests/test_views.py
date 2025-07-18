@@ -24,9 +24,7 @@ class TestAuthViews(TestCase):
         # 2. Create the Company that links to this user
         Company.objects.create(name=test_credentials["name"], profile=profile)
 
-        res = res_type(
-            self.client.post(reverse("auth:token_obtain_pair"), test_credentials)
-        )
+        res = res_type(self.client.post(reverse("auth:login"), test_credentials))
 
         self.assertEqual(200, res.status_code)
         self.assertIn("access", res.data)
@@ -53,9 +51,7 @@ class TestAuthViews(TestCase):
         # 2. Create the Company that links to this user
         Company.objects.create(name=test_credentials["name"], profile=profile)
 
-        res = res_type(
-            self.client.post(reverse("auth:token_obtain_pair"), test_credentials)
-        )
+        res = res_type(self.client.post(reverse("auth:login"), test_credentials))
         self.assertEqual(200, res.status_code)
 
         res = res_type(self.client.post(reverse("auth:logout")))

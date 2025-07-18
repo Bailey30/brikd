@@ -1,3 +1,4 @@
+from django.http.request import QueryDict
 from common.models import BaseUser
 from rest_framework.exceptions import ValidationError
 from common.service_utils import update_model

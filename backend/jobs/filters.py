@@ -11,17 +11,20 @@ from common.utils import (
 from django.contrib.gis.db.models.functions import Distance
 from django.contrib.gis.measure import D
 
+from jobs.utils import JobFilterParams
+
 
 class JobFilter:
     is_annotated: bool = False
 
     def __init__(self, jobs, params) -> None:
-        self.jobs = jobs
-        self.params = params
+        self.jobs: QuerySet = jobs
+        self.params: JobFilterParams = params
 
     def filter(self):
         distance = self.params.get("distance")
         postcode = self.params.get("postcode")
+        company_id = self.params.get("company_id")
 
         jobs = self.jobs
 
@@ -29,12 +32,21 @@ class JobFilter:
             jobs = annotate_queryset_with_distance(jobs, postcode)
 
         if distance and postcode:
-            point = create_gis_point(get_postcode_coordinates(postcode))
-            jobs = jobs.filter(site__coordinates__distance_lte=(point, D(mi=distance)))
+            jobs = self.filter_by_distance(jobs, postcode, distance)
+
+        if company_id:
+            jobs = self.filter_by_company(jobs, company_id)
 
         self.jobs = jobs
 
         return self
+
+    def filter_by_distance(self, jobs, postcode, distance) -> QuerySet[Job]:
+        point = create_gis_point(get_postcode_coordinates(postcode))
+        return jobs.filter(site__coordinates__distance_lte=(point, D(mi=distance)))
+
+    def filter_by_company(self, jobs, company_id) -> QuerySet[Job]:
+        return jobs.filter(company_id=company_id)
 
     def sort(self):
         sort = self.params.get("sort")

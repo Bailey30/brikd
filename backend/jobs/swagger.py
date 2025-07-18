@@ -39,6 +39,12 @@ list_job_view_schema = {
                 "hourly_rate_lowest",
             ],
         ),
+        openapi.Parameter(
+            "company_id",
+            openapi.IN_QUERY,
+            description="Used to fetch jobs for one company only.",
+            type=openapi.TYPE_STRING,
+        ),
     ],
 }
 

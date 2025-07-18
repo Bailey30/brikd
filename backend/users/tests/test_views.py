@@ -23,7 +23,7 @@ class TestUserViews(APITestCase):
         user = UserFactory()
 
         res = self.client.post(
-            reverse("auth:token_obtain_pair"),
+            reverse("auth:login"),
             {"email": user.profile.email, "password": "password"},
         )
 

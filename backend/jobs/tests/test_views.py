@@ -29,7 +29,7 @@ class TestJobViews(APITestCase):
 
         self.company = create_test_company()
 
-        self.client.post(reverse("auth:token_obtain_pair"), test_company_credentials)
+        self.client.post(reverse("auth:login"), test_company_credentials)
 
     def test_should_list_no_jobs(self):
         res = self.client.get(reverse("jobs:list"), format="json")
@@ -101,7 +101,7 @@ class TestJobViews(APITestCase):
 
         created_job = create_res.data["job"]
 
-        res = self.client.post(
+        res = self.client.delete(
             reverse("jobs:delete", args=[created_job["id"]]),
             format="json",
         )
@@ -130,7 +130,7 @@ class TestJobViews(APITestCase):
     def test_should_list_jobs_with_correct_distance_value(self):
         company = CompanyFactory()
         company_client = APIClient()
-        company_client.post(reverse("auth:token_obtain_pair"), test_company_credentials)
+        company_client.post(reverse("auth:login"), test_company_credentials)
 
         site_1 = SiteFactory(company=company)
         site_2 = SiteFactory(company=company, postcode="M15 5Ab")
@@ -152,9 +152,7 @@ class TestJobViews(APITestCase):
             reverse("users:create"), test_user_credentials, format="json"
         )
         jobseeker = UserFactory()
-        res = jobseeker_client.post(
-            reverse("auth:token_obtain_pair"), test_user_credentials
-        )
+        res = jobseeker_client.post(reverse("auth:login"), test_user_credentials)
         self.assertEqual(status.HTTP_200_OK, res.status_code)
 
         jobseeker = User.objects.get(profile_id=jobseeker.id)
@@ -176,7 +174,7 @@ class TestJobViews(APITestCase):
     def test_should_paginate_correct_amount(self):
         company = CompanyFactory()
         company_client = APIClient()
-        company_client.post(reverse("auth:token_obtain_pair"), test_company_credentials)
+        company_client.post(reverse("auth:login"), test_company_credentials)
 
         site_1 = SiteFactory(company=company)
 
@@ -292,3 +290,20 @@ class TestJobViews(APITestCase):
         self.assertEqual(10, len(jobs))
         for job in res.data["results"]:
             self.assertNotIn("distance", job)
+
+    def test_should_get_jobs_for_company(self):
+        company_1 = CompanyFactory()
+        company_2 = CompanyFactory()
+
+        site_1 = SiteFactory(company=company_1, postcode="M1 1AE")
+        site_2 = SiteFactory(company=company_1, postcode="M2 3HQ")
+
+        JobFactory.create_batch(5, site=site_1, company=company_1, hourly_rate=10)
+        JobFactory.create_batch(5, site=site_2, company=company_2, hourly_rate=12)
+
+        res = self.client.get(
+            reverse("jobs:list", query=[("company_id", company_1.id)])
+        )
+
+        self.assertEqual(status.HTTP_200_OK, res.status_code)
+        self.assertEqual(5, len(res.data["results"]))

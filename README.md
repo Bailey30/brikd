@@ -35,7 +35,9 @@ make migrate
 
 Once the backend is running view the api endpoints at:
 
-```localhost:8000/swagger```
+```
+localhost:8000/swagger
+```
 
 ---
 

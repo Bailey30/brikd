@@ -1,6 +1,8 @@
+import re
 from django.contrib.gis.db.models.functions import Distance
 from django.db.models import QuerySet
 import requests
+from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from django.contrib.gis.geos.geometry import GEOSGeometry
@@ -39,3 +41,8 @@ def annotate_queryset_with_distance(queryset, postcode) -> QuerySet[Job]:
     )
 
     return jobs
+
+def uk_postcode_validator(postcode):
+    if re.match(r"^([A-Z]{1,2}\d[A-Z\d]? ?\d[A-Z]{2}|GIR ?0A{2})$", postcode) is None:
+        raise serializers.ValidationError("Invalid UK postcode.")
+

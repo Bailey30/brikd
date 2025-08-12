@@ -4,10 +4,12 @@ from rest_framework.exceptions import ValidationError
 from common.service_utils import update_model
 from companies.services import CompanyService
 from django.db.models import QuerySet
+from jobs.alerts import JobAlerts
 from sites.services import SiteService
 
 from jobs.filters import JobFilter
 from jobs.models import Job
+import boto3
 
 
 class JobService:
@@ -22,6 +24,7 @@ class JobService:
     ) -> Job:
         site = SiteService().get(site_id)
         company = CompanyService().get(company_id)
+
         job = Job.objects.create(
             title=title,
             description=description,
@@ -30,6 +33,10 @@ class JobService:
             site=site,
             company=company,
         )
+
+        JobAlerts().publish_job_topic(job)
+        JobAlerts().publish_distance_topic(job)
+
         return job
 
     def get(self, id: str) -> Job:

@@ -15,8 +15,20 @@ class UserOutputSerializer(serializers.ModelSerializer):
             "profile",
             "search_postcode",
             "search_location",
+            "phone_number",
+            "distance_alerts",
+            "alert_radius",
+            "search_postcode_coordinates",
         ]
         depth = 1
+
+    def to_representation(self, model):  # pyright: ignore
+        values = super().to_representation(model)
+        values["search_postcode_coordinates"] = {
+            "longitude": model.search_postcode_coordinates[0],
+            "latitude": model.search_postcode_coordinates[1],
+        }
+        return values
 
 
 class CreateUserInputSerializer(serializers.Serializer):
@@ -25,6 +37,9 @@ class CreateUserInputSerializer(serializers.Serializer):
     name = serializers.CharField()
     search_postcode = serializers.CharField(required=False)
     search_location = serializers.CharField(required=False)
+    phone_number = serializers.CharField(required=False)
+    distance_alerts = serializers.BooleanField(required=False)
+    alert_radius = serializers.IntegerField(required=False)
 
 
 class UpdateUserInputSerializer(serializers.Serializer):
@@ -33,3 +48,6 @@ class UpdateUserInputSerializer(serializers.Serializer):
     name = serializers.CharField(required=False)
     search_postcode = serializers.CharField(required=False)
     search_location = serializers.CharField(required=False)
+    phone_number = serializers.CharField(required=False)
+    distance_alerts = serializers.BooleanField(required=False)
+    alert_radius = serializers.IntegerField(required=False)

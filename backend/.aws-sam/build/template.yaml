@@ -1,0 +1,5 @@
+Resources:
+  MySNSTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: JobAlert

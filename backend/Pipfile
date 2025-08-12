@@ -17,6 +17,8 @@ django = "*"
 factory-boy = "*"
 django-filter = "*"
 drf-yasg = "*"
+boto3 = "*"
+aws-sam-cli-local = "*"
 
 [dev-packages]
 

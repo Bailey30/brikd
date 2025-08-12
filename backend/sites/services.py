@@ -10,7 +10,6 @@ from django.db.models import QuerySet
 class SiteService:
     def create(self, name: str, postcode: str, company: Company) -> Site:
         coordinates = get_postcode_coordinates(postcode)
-
         site = Site.objects.create(
             name=name,
             postcode=postcode,

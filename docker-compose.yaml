@@ -19,15 +19,18 @@ services:
     build:
       context: ./backend
       dockerfile: local.Dockerfile
-    command: pipenv run python manage.py runserver 0.0.0.0:8000
+    command: bash -c "pipenv run python manage.py runserver 0.0.0.0:8000"
     environment:
       - DATABASE_URL=postgis://postgres:postgres@db:5432/brikd
+      - LOCALSTACK_URL=localstack:4566
     volumes:
       - ./backend:/app
     ports:
       - "8000:8000"
     depends_on:
       db:
+        condition: service_healthy
+      localstack:
         condition: service_healthy
     restart: always 
 
@@ -48,6 +51,22 @@ services:
       - WATCHPACK_POLLING=true
     tty: true
     stdin_open: true
+
+  localstack:
+    container_name: "${LOCALSTACK_DOCKER_NAME:-localstack-main}"
+    image: localstack/localstack
+    ports:
+      - "4566:4566"
+      # - "127.0.0.1:4566:4566"            # LocalStack Gateway
+      # - "127.0.0.1:4510-4559:4510-4559"  # external services port range
+    environment:
+      # LocalStack configuration: https://docs.localstack.cloud/references/configuration/
+      - DEBUG=${DEBUG:-0}
+      - SERVICES=sns
+    volumes:
+      - "${LOCALSTACK_VOLUME_DIR:-./volume}:/var/lib/localstack"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+
 
 
 

@@ -1,0 +1,5 @@
+version = 0.1
+
+[default]
+[default.localstack]
+endpoint_url = "http://localhost:4566"

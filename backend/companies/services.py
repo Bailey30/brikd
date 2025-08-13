@@ -4,6 +4,7 @@ from django.contrib.auth import get_user_model
 from django.db.models import QuerySet
 from companies.models import Company
 from common.models import BaseUser
+from jobs.alerts import JobAlertsClient
 
 
 BaseUser = get_user_model()
@@ -11,7 +12,7 @@ BaseUser = get_user_model()
 
 class CompanyService:
     def create(self, email: str, password: str, name: str) -> Company:
-        # 1. Create the BaseUser
+        # Create the BaseUser
         user = BaseUser.objects.create_user(  # pyright: ignore
             email=email,
             password=password,
@@ -20,8 +21,11 @@ class CompanyService:
             account_type="company",
         )
 
-        # 2. Create the Company that links to this user
+        # Create the Company that links to this user
         company = Company.objects.create(profile=user, name=name)
+
+        # Creates an sns topic
+        # JobAlerts().create_topic(company)
 
         return company
 

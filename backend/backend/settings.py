@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     "sites",
     "jobs",
     "favourites",
+    "subscriptions",
     "rest_framework",
     "django_filters",
     "drf_yasg",

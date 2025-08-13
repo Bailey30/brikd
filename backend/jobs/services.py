@@ -4,7 +4,7 @@ from rest_framework.exceptions import ValidationError
 from common.service_utils import update_model
 from companies.services import CompanyService
 from django.db.models import QuerySet
-from jobs.alerts import JobAlerts
+from jobs.alerts import JobAlertsClient
 from sites.services import SiteService
 
 from jobs.filters import JobFilter
@@ -34,8 +34,8 @@ class JobService:
             company=company,
         )
 
-        JobAlerts().publish_job_topic(job)
-        JobAlerts().publish_distance_topic(job)
+        # JobAlerts().publish_job_topic(job)
+        # JobAlerts().publish_distance_topic(job)
 
         return job
 

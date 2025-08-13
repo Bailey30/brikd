@@ -1,3 +1,4 @@
+import os
 import factory
 from common.factories import BaseUserFactory
 
@@ -10,6 +11,7 @@ class UserFactory(factory.django.DjangoModelFactory):
 
     name = factory.declarations.Sequence(lambda n: "jobseeker%d" % n)
     search_postcode = "M14 6UF"
+    phone_number = os.environ.get("TEST_PHONE_NUMBER")
 
     @factory.helpers.lazy_attribute
     def profile(self):
